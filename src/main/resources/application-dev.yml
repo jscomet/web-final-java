@@ -1,0 +1,14 @@
+data:
+  mysql:
+    host: localhost
+    port: 3308
+    database: web
+    username: root
+    password: jscomet_@_21232
+  redis:
+    host: localhost
+    port: 6381
+    password: jscomet_@_21232
+
+app:
+  domain: localhost

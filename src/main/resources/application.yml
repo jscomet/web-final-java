@@ -1,0 +1,73 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: home-web-java
+  datasource:
+    url: jdbc:mysql://${data.mysql.host}:${data.mysql.port}/${data.mysql.database}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: ${data.mysql.username}
+    password: ${data.mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${data.redis.host}
+      port: ${data.redis.port}
+      password: ${data.redis.password}
+      database: 0
+      timeout: 10000ms
+  main:
+    allow-circular-references: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: utf-8
+  error:
+    include-stacktrace: never
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+# MyBatis 配置
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+
+# MyBatis Plus 的配置
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+
+logging:
+  config: classpath:logback.xml
+  file:
+    path: ./logs
+  level:
+    homwork.soft.activity: debug
+  logback:
+    rollingpolicy:
+      max-history: 36500
+
+app:
+  domain: ${app.domain}
+  front:
+    url: ${app.domain}/#
+    index-url: ${app.front.url}
+    error-url: ${app.front.url}?login_failed=1
+  back:
+    url: ${app.domain}/api
+    upload-path: ./uploads
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    secret-key: home-soft-activity
+    # 设置jwt过期时间
+    ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    token-name: token
+  applet:
+    appid:
+    secret:

@@ -1,0 +1,14 @@
+data:
+  mysql:
+    host: 47.115.57.164
+    port: 3306
+    database: web
+    username: root
+    password: jscomet_@_21232
+  redis:
+    host: 47.115.57.164
+    port: 6379
+    password: jscomet_@_21232
+
+app:
+  domain: 47.115.57.164

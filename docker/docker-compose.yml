@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0.33
+    container_name: web-mysql
+    restart: unless-stopped
+    volumes:
+      - mysql-conf:/etc/mysql
+      - mysql-data:/var/lib/mysql
+      - mysql-logs:/var/log/mysql
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: jscomet_@_21232
+      MYSQL_DATABASE: web
+
+    networks:
+      web:
+        aliases:
+          - mysql
+
+  redis:
+    image: redis:7.2.0-alpine
+    container_name: web-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+      - redis-conf:/usr/local/etc/redis
+      - redis-logs:/var/log/redis
+    command: redis-server --requirepass "jscomet_@_21232"
+    environment:
+      TZ: Asia/Shanghai
+    networks:
+      web:
+        aliases:
+          - redis
+
+volumes:
+  mysql-conf:
+  mysql-data:
+  mysql-logs:
+
+  redis-conf:
+  redis-data:
+  redis-logs:
+
+networks:
+  web:

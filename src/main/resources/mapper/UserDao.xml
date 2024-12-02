@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.UserDao">
+
+
+    <resultMap id="UserMap" type="homework.web.entity.po.User">
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="salt" column="salt" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="roleId" column="role_id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="avatarUrl" column="avatar_url" jdbcType="VARCHAR"/>
+        <result property="signature" column="signature" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="loginAttempts" column="login_attempts" jdbcType="INTEGER"/>
+        <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
+        <result property="lastLoginIp" column="last_login_ip" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="UserVOMap" type="homework.web.entity.vo.UserVO" extends="UserMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserVOMap">
+        select *
+        from `user`
+        where `user_id` = #{userId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="userId != null">
+                and `user_id` = #{userId}
+            </if>
+            <if test="username != null and username != ''">
+                and `username` = #{username}
+            </if>
+            <if test="password != null and password != ''">
+                and `password` = #{password}
+            </if>
+            <if test="salt != null and salt != ''">
+                and `salt` = #{salt}
+            </if>
+            <if test="email != null and email != ''">
+                and `email` = #{email}
+            </if>
+            <if test="roleId != null">
+                and `role_id` = #{roleId}
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and `student_id` = #{studentId}
+            </if>
+            <if test="nickname != null and nickname != ''">
+                and `nickname` = #{nickname}
+            </if>
+            <if test="avatarUrl != null and avatarUrl != ''">
+                and `avatar_url` = #{avatarUrl}
+            </if>
+            <if test="signature != null and signature != ''">
+                and `signature` = #{signature}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="loginAttempts != null">
+                and `login_attempts` = #{loginAttempts}
+            </if>
+            <if test="lastLoginTime != null">
+                and `last_login_time` = #{lastLoginTime}
+            </if>
+            <if test="lastLoginIp != null and lastLoginIp != ''">
+                and `last_login_ip` = #{lastLoginIp}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and `update_time` = #{updateTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="UserVOMap">
+        select *
+        from `user`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `user`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="userId" useGeneratedKeys="true">
+        insert into user(username,password,salt,email,role_id,student_id,nickname,avatar_url,signature,status,login_attempts,last_login_time,last_login_ip,create_time,update_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.username},#{entity.password},#{entity.salt},#{entity.email},#{entity.roleId},#{entity.studentId},#{entity.nickname},#{entity.avatarUrl},#{entity.signature},#{entity.status},#{entity.loginAttempts},#{entity.lastLoginTime},#{entity.lastLoginIp},#{entity.createTime},#{entity.updateTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="userId" useGeneratedKeys="true">
+        insert into user(username,password,salt,email,role_id,student_id,nickname,avatar_url,signature,status,login_attempts,last_login_time,last_login_ip,create_time,update_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.username},#{entity.password},#{entity.salt},#{entity.email},#{entity.roleId},#{entity.studentId},#{entity.nickname},#{entity.avatarUrl},#{entity.signature},#{entity.status},#{entity.loginAttempts},#{entity.lastLoginTime},#{entity.lastLoginIp},#{entity.createTime},#{entity.updateTime})
+        </foreach>
+        on duplicate key update
+           username = values(username) ,
+           password = values(password) ,
+           salt = values(salt) ,
+           email = values(email) ,
+           role_id = values(role_id) ,
+           student_id = values(student_id) ,
+           nickname = values(nickname) ,
+           avatar_url = values(avatar_url) ,
+           signature = values(signature) ,
+           status = values(status) ,
+           login_attempts = values(login_attempts) ,
+           last_login_time = values(last_login_time) ,
+           last_login_ip = values(last_login_ip) ,
+           create_time = values(create_time) ,
+           update_time = values(update_time)     
+    </insert>
+
+</mapper>
+

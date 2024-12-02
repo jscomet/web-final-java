@@ -1,0 +1,63 @@
+version: "3.8"
+services:
+  mysql:
+    ports:
+      - "0.0.0.0:3306:3306"
+    networks:
+      web:
+        ipv4_address: 10.135.113.101
+
+  redis:
+    ports:
+      - "0.0.0.0:6379:6379"
+    networks:
+      web:
+        ipv4_address: 10.135.113.102
+
+volumes:
+  mysql-conf:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "${PROJECT_ROOT}/mysql/conf"
+  mysql-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "${PROJECT_ROOT}/mysql/data"
+  mysql-logs:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "${PROJECT_ROOT}/mysql/logs"
+
+  redis-conf:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "${PROJECT_ROOT}/redis/conf"
+  redis-data:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "${PROJECT_ROOT}/redis/data"
+  redis-logs:
+    driver: local
+    driver_opts:
+      type: "none"
+      o: "bind"
+      device: "${PROJECT_ROOT}/redis/logs"
+
+networks:
+  web:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.135.113.0/24
+          gateway: 10.135.113.1
