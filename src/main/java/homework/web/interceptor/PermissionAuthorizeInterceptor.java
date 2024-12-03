@@ -3,6 +3,7 @@ package homework.web.interceptor;
 import homework.web.annotation.PermissionAuthorize;
 import homework.web.constant.enums.RoleType;
 import homework.web.exception.HttpErrorException;
+import homework.web.property.AppProperty;
 import homework.web.service.RoleService;
 import homework.web.util.AuthUtils;
 import jakarta.annotation.Nonnull;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class PermissionAuthorizeInterceptor implements HandlerInterceptor {
     @Resource
     private RoleService roleService;
+    @Resource
+    private AppProperty appProperty;
 
     @Override
     public boolean preHandle(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Object handler) throws Exception {
@@ -25,6 +28,12 @@ public class PermissionAuthorizeInterceptor implements HandlerInterceptor {
         if (!(handler instanceof HandlerMethod method)) {
             return true;
         }
+
+        // 判断是否开启权限校验
+        if (!Boolean.TRUE.equals(appProperty.getSecurity().isEnabled())) {
+            return true;
+        }
+
         PermissionAuthorize permissionAuthorize = method.getMethod().getAnnotation(PermissionAuthorize.class);
         if (permissionAuthorize == null) {
             return true;
@@ -34,8 +43,8 @@ public class PermissionAuthorizeInterceptor implements HandlerInterceptor {
         if (!AuthUtils.isAuthenticated()) {
             throw new HttpErrorException(HttpStatus.UNAUTHORIZED, "未登录，无权限");
         }
-        // 超级管理员允许所有操作
-        if (AuthUtils.hasRole(RoleType.SUPER_ADMIN)) {
+        // 超级管理员和老师允许所有操作
+        if (AuthUtils.hasRole(RoleType.SUPER_ADMIN)||AuthUtils.hasRole(RoleType.TEACHER)) {
             return true;
         }
 

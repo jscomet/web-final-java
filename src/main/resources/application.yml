@@ -47,7 +47,7 @@ logging:
   file:
     path: ./logs
   level:
-    homwork.soft.activity: debug
+    homework.web: debug
   logback:
     rollingpolicy:
       max-history: 36500
@@ -71,3 +71,5 @@ app:
   applet:
     appid:
     secret:
+  security:
+    enabled: false

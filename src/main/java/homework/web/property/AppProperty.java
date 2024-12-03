@@ -15,6 +15,7 @@ public class AppProperty {
     private final Back back = new Back();
     private final JwtProperty jwt = new JwtProperty();
     private final WeChatProperty applet = new WeChatProperty();
+    private final Security security = new Security();
 
     @Data
     public static class Front {
@@ -46,5 +47,15 @@ public class AppProperty {
         private String secret;
     }
 
+    /**
+     * 安全设置
+     */
+    @Data
+    public static class Security {
+        /**
+         * 是否开启身份校验
+         */
+        private boolean enabled;
+    }
 
 }

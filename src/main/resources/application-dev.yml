@@ -12,3 +12,10 @@ data:
 
 app:
   domain: localhost
+  front:
+    url: ${app.domain}/#
+    index-url: ${app.front.url}
+    error-url: ${app.front.url}?login_failed=1
+  back:
+    url: localhost:8080
+    upload-path: ./uploads

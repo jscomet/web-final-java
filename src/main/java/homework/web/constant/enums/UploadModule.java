@@ -5,7 +5,7 @@ package homework.web.constant.enums;
  *
  */
 public enum UploadModule {
-    COMMENT;
+    COMMENT, IMAGE, FILE;
 
     @Override
     public String toString() {

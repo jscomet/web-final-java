@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.util.CollectionUtils;
 
 /**
- * 服务器鉴权
+ * 假言鉴权类
  */
 public abstract class AssertUtils {
     public AssertUtils() {

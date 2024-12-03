@@ -1,42 +1,18 @@
 package homework.web.util;
 
-import homework.web.constant.JwtClaimsConstant;
 import homework.web.constant.enums.RoleType;
 import homework.web.context.CurrentUserContext;
 import homework.web.entity.po.Role;
 import homework.web.entity.vo.UserVO;
-import homework.web.property.AppProperty;
-import homework.web.service.UserService;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class AuthUtils {
-    @Resource
-    private UserService userService;
-    private static UserService service;
-
-    @Resource(name = "appProperty")
-    private AppProperty _appProperty;
-    private static AppProperty appProperty;
-
-    @PostConstruct
-    public void init() {
-        AuthUtils.service = this.userService;
-        AuthUtils.appProperty = this._appProperty;
-    }
-
-
-    public static String createJwtToken(String userId) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(JwtClaimsConstant.USER_ID, userId);
-        return JwtUtils.createJWT(appProperty.getJwt().getSecretKey(), appProperty.getJwt().getTtl(), payload);
-    }
 
     public static UserVO getUserDetails() {
         return CurrentUserContext.getCurrentUser();
+    }
+
+    public static Long getCurrentUserId() {
+        return getUserDetails() !=null ?getUserDetails().getUserId():null;
     }
 
     public static void setUserDetails(UserVO user) {
@@ -48,7 +24,7 @@ public class AuthUtils {
     }
 
     /**
-     * 是否有权限访问
+     * 用户是否登录
      *
      * @return 是否
      */

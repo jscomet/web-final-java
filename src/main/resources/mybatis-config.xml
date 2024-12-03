@@ -15,12 +15,12 @@
         <typeAlias alias="ArrayList" type="java.util.ArrayList"/>
         <typeAlias alias="LinkedList" type="java.util.LinkedList"/>
 
-        <package name="homwork.web.entity"/>
-        <package name="homwork.web.dto"/>
+        <package name="homework.web.entity"/>
+        <package name="homework.web.dto"/>
     </typeAliases>
 
     <typeHandlers>
-        <package name="homwork.web.entity.handler"/>
+        <package name="homework.web.entity.handler"/>
     </typeHandlers>
 
 </configuration>

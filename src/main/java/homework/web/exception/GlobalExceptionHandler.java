@@ -5,6 +5,9 @@ import jakarta.validation.ConstraintViolationException;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,6 +42,24 @@ public class GlobalExceptionHandler {
         if (e.getMessage() != null) {
             int index = e.getMessage().indexOf(':') + 2;
             return CommonResult.error(BAD_REQUEST, e.getMessage().substring(index));
+        } else {
+            return CommonResult.error(BAD_REQUEST);
+        }
+    }
+
+    /**
+     * 参数校验异常
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    public CommonResult<Object> handleException(MethodArgumentNotValidException e) {
+        if (e != null) {
+            BindingResult result = e.getBindingResult();
+            StringBuilder builder = new StringBuilder();
+            for (FieldError fieldError : result.getFieldErrors()) {
+                builder.append(fieldError.getField()).append(":").append(fieldError.getDefaultMessage()).append(";");
+            }
+            return CommonResult.error(BAD_REQUEST, builder.toString());
         } else {
             return CommonResult.error(BAD_REQUEST);
         }
