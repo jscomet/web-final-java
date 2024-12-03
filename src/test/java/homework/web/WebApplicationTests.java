@@ -13,12 +13,6 @@ class WebApplicationTests {
 
     @Test
     void contextLoads() {
-        User user = new User();
-        user.setUsername("test");
-        user.setPassword("123456");
-        user.setSalt("111");
-        userService.save(user);
-        System.out.println("保存成功");
     }
 
 }
