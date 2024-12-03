@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.CourseDao">
+
+
+    <resultMap id="CourseMap" type="homework.web.entity.po.Course">
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
+        <result property="coverImage" column="cover_image" jdbcType="VARCHAR"/>
+        <result property="isRecommended" column="is_recommended" jdbcType="BOOLEAN"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="allowComment" column="allow_comment" jdbcType="BOOLEAN"/>
+        <result property="allowNotes" column="allow_notes" jdbcType="BOOLEAN"/>
+        <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
+        <result property="likeCount" column="like_count" jdbcType="INTEGER"/>
+        <result property="studentCount" column="student_count" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="CourseVOMap" type="homework.web.entity.vo.CourseVO" extends="CourseMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CourseVOMap">
+        select *
+        from `course`
+        where `course_id` = #{courseId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="title != null and title != ''">
+                and `title` = #{title}
+            </if>
+            <if test="description != null and description != ''">
+                and `description` = #{description}
+            </if>
+            <if test="categoryId != null">
+                and `category_id` = #{categoryId}
+            </if>
+            <if test="teacherId != null">
+                and `teacher_id` = #{teacherId}
+            </if>
+            <if test="coverImage != null and coverImage != ''">
+                and `cover_image` = #{coverImage}
+            </if>
+            <if test="isRecommended != null">
+                and `is_recommended` = #{isRecommended}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="allowComment != null">
+                and `allow_comment` = #{allowComment}
+            </if>
+            <if test="allowNotes != null">
+                and `allow_notes` = #{allowNotes}
+            </if>
+            <if test="viewCount != null">
+                and `view_count` = #{viewCount}
+            </if>
+            <if test="likeCount != null">
+                and `like_count` = #{likeCount}
+            </if>
+            <if test="studentCount != null">
+                and `student_count` = #{studentCount}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and `update_time` = #{updateTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="CourseVOMap">
+        select *
+        from `course`
+        <include refid="queryCondition"/>
+        <choose>
+            <when test="sorter != null and sorter.column != null and sorter.mode != null">
+                order by ${sorter.column} ${sorter.mode}
+            </when>
+        </choose>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `course`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="courseId" useGeneratedKeys="true">
+        insert into course(title,description,category_id,teacher_id,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="courseId" useGeneratedKeys="true">
+        insert into course(title,description,category_id,teacher_id,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
+        </foreach>
+        on duplicate key update
+           title = values(title) ,
+           description = values(description) ,
+           category_id = values(category_id) ,
+           teacher_id = values(teacher_id) ,
+           cover_image = values(cover_image) ,
+           is_recommended = values(is_recommended) ,
+           status = values(status) ,
+           allow_comment = values(allow_comment) ,
+           allow_notes = values(allow_notes) ,
+           view_count = values(view_count) ,
+           like_count = values(like_count) ,
+           student_count = values(student_count) ,
+           create_time = values(create_time) ,
+           update_time = values(update_time)     
+    </insert>
+
+</mapper>
+

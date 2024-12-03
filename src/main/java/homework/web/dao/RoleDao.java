@@ -14,7 +14,7 @@ import homework.web.entity.vo.RoleVO;
  * 角色(Role)表数据库访问层
  *
  * @author jscomet
- * @since 2024-12-02 19:37:40
+ * @since 2024-12-02 20:26:47
  */
 @Mapper
 public interface RoleDao extends BaseMapper<Role> {
@@ -58,6 +58,12 @@ public interface RoleDao extends BaseMapper<Role> {
     */
     int insertOrUpdateBatch(@Param("entities") List<Role> entities);
 
+    /**
+     * 通过用户ID查询角色
+     * @param userId 用户ID
+     * @return 角色列表
+     */
+    List<Role> queryByUserId(Long userId);
 }
 
 

@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * 用户(User)查询参数
  *
  * @author jscomet
- * @since 2024-12-02 19:37:01
+ * @since 2024-12-02 20:23:54
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

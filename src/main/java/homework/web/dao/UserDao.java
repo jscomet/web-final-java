@@ -14,7 +14,7 @@ import homework.web.entity.vo.UserVO;
  * 用户(User)表数据库访问层
  *
  * @author jscomet
- * @since 2024-12-02 19:36:58
+ * @since 2024-12-03 01:33:40
  */
 @Mapper
 public interface UserDao extends BaseMapper<User> {

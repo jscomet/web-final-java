@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.DiscussionDao">
+
+
+    <resultMap id="DiscussionMap" type="homework.web.entity.po.Discussion">
+        <result property="discussionId" column="discussion_id" jdbcType="INTEGER"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="DiscussionVOMap" type="homework.web.entity.vo.DiscussionVO" extends="DiscussionMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DiscussionVOMap">
+        select *
+        from `discussion`
+        where `discussion_id` = #{discussionId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="discussionId != null">
+                and `discussion_id` = #{discussionId}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="userId != null">
+                and `user_id` = #{userId}
+            </if>
+            <if test="content != null and content != ''">
+                and `content` = #{content}
+            </if>
+            <if test="parentId != null">
+                and `parent_id` = #{parentId}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="DiscussionVOMap">
+        select *
+        from `discussion`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `discussion`
+        <include refid="queryCondition"/>
+
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="discussionId" useGeneratedKeys="true">
+        insert into discussion(course_id,user_id,content,parent_id,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.courseId},#{entity.userId},#{entity.content},#{entity.parentId},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="discussionId" useGeneratedKeys="true">
+        insert into discussion(course_id,user_id,content,parent_id,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.courseId},#{entity.userId},#{entity.content},#{entity.parentId},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           course_id = values(course_id) ,
+           user_id = values(user_id) ,
+           content = values(content) ,
+           parent_id = values(parent_id) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

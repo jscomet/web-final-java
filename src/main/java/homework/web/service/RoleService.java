@@ -12,7 +12,7 @@ import java.util.List;
  * 角色(Role)表服务接口
  *
  * @author jscomet
- * @since 2024-12-02 19:37:40
+ * @since 2024-12-02 20:26:48
  */
 public interface RoleService extends IService<Role> {
     /**
@@ -26,9 +26,9 @@ public interface RoleService extends IService<Role> {
     /**
      * 查询多条数据
      *
-     * @param current 查询页面
+     * @param current  查询页面
      * @param pageSize 查询条数
-     * @param param 查询参数
+     * @param param    查询参数
      * @return 对象列表
      */
     List<RoleVO> queryAll(int current, int pageSize, RoleQuery param);
@@ -41,5 +41,12 @@ public interface RoleService extends IService<Role> {
      */
     int count(RoleQuery param);
 
+    /**
+     * 根据用户id查询角色
+     *
+     * @param userId 用户id
+     * @return 角色列表
+     */
+    List<Role> queryByUserId(Long userId);
 }
 

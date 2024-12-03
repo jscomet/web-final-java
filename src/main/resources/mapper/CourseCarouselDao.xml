@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.CourseCarouselDao">
+
+
+    <resultMap id="CourseCarouselMap" type="homework.web.entity.po.CourseCarousel">
+        <result property="carouselId" column="carousel_id" jdbcType="INTEGER"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="imageUrl" column="image_url" jdbcType="VARCHAR"/>
+        <result property="sortOrder" column="sort_order" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="BOOLEAN"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="CourseCarouselVOMap" type="homework.web.entity.vo.CourseCarouselVO" extends="CourseCarouselMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CourseCarouselVOMap">
+        select *
+        from `course_carousel`
+        where `carousel_id` = #{carouselId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="carouselId != null">
+                and `carousel_id` = #{carouselId}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="imageUrl != null and imageUrl != ''">
+                and `image_url` = #{imageUrl}
+            </if>
+            <if test="sortOrder != null">
+                and `sort_order` = #{sortOrder}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="CourseCarouselVOMap">
+        select *
+        from `course_carousel`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `course_carousel`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="carouselId" useGeneratedKeys="true">
+        insert into course_carousel(course_id,image_url,sort_order,status,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.courseId},#{entity.imageUrl},#{entity.sortOrder},#{entity.status},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="carouselId" useGeneratedKeys="true">
+        insert into course_carousel(course_id,image_url,sort_order,status,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.courseId},#{entity.imageUrl},#{entity.sortOrder},#{entity.status},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           course_id = values(course_id) ,
+           image_url = values(image_url) ,
+           sort_order = values(sort_order) ,
+           status = values(status) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

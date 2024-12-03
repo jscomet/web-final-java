@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.SelfTestDao">
+
+
+    <resultMap id="SelfTestMap" type="homework.web.entity.po.SelfTest">
+        <result property="testId" column="test_id" jdbcType="INTEGER"/>
+        <result property="creatorId" column="creator_id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="settings" column="settings" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="SelfTestVOMap" type="homework.web.entity.vo.SelfTestVO" extends="SelfTestMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SelfTestVOMap">
+        select *
+        from `self_test`
+        where `test_id` = #{testId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="testId != null">
+                and `test_id` = #{testId}
+            </if>
+            <if test="creatorId != null">
+                and `creator_id` = #{creatorId}
+            </if>
+            <if test="title != null and title != ''">
+                and `title` = #{title}
+            </if>
+            <if test="description != null and description != ''">
+                and `description` = #{description}
+            </if>
+            <if test="settings != null and settings != ''">
+                and `settings` = #{settings}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="SelfTestVOMap">
+        select *
+        from `self_test`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `self_test`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="testId" useGeneratedKeys="true">
+        insert into self_test(creator_id,title,description,settings,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.creatorId},#{entity.title},#{entity.description},#{entity.settings},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="testId" useGeneratedKeys="true">
+        insert into self_test(creator_id,title,description,settings,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.creatorId},#{entity.title},#{entity.description},#{entity.settings},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           creator_id = values(creator_id) ,
+           title = values(title) ,
+           description = values(description) ,
+           settings = values(settings) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

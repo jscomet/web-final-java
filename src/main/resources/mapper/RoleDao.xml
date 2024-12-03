@@ -46,7 +46,13 @@
         from `role`
         <include refid="queryCondition"/>
     </select>
- 
+    <select id="queryByUserId" resultType="homework.web.entity.po.Role" parameterType="java.lang.Long">
+        select r.*
+        from `role` r
+            join `user_role` ur on r.role_id = ur.role_id
+        where ur.user_id = #{userId}
+    </select>
+
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="roleId" useGeneratedKeys="true">

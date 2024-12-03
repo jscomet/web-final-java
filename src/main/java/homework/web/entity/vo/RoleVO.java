@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
  * 角色(Role)视图模型
  *
  * @author jscomet
- * @since 2024-12-02 19:37:40
+ * @since 2024-12-02 20:26:48
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

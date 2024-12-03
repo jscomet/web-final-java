@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.TestRecordDao">
+
+
+    <resultMap id="TestRecordMap" type="homework.web.entity.po.TestRecord">
+        <result property="recordId" column="record_id" jdbcType="INTEGER"/>
+        <result property="testId" column="test_id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="answers" column="answers" jdbcType="VARCHAR"/>
+        <result property="score" column="score" jdbcType="NUMERIC"/>
+        <result property="completeTime" column="complete_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="TestRecordVOMap" type="homework.web.entity.vo.TestRecordVO" extends="TestRecordMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TestRecordVOMap">
+        select *
+        from `test_record`
+        where `record_id` = #{recordId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="recordId != null">
+                and `record_id` = #{recordId}
+            </if>
+            <if test="testId != null">
+                and `test_id` = #{testId}
+            </if>
+            <if test="studentId != null">
+                and `student_id` = #{studentId}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="answers != null and answers != ''">
+                and `answers` = #{answers}
+            </if>
+            <if test="score != null">
+                and `score` = #{score}
+            </if>
+            <if test="completeTime != null">
+                and `complete_time` = #{completeTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="TestRecordVOMap">
+        select *
+        from `test_record`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `test_record`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="recordId" useGeneratedKeys="true">
+        insert into test_record(test_id,student_id,status,answers,score,complete_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.testId},#{entity.studentId},#{entity.status},#{entity.answers},#{entity.score},#{entity.completeTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="recordId" useGeneratedKeys="true">
+        insert into test_record(test_id,student_id,status,answers,score,complete_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.testId},#{entity.studentId},#{entity.status},#{entity.answers},#{entity.score},#{entity.completeTime})
+        </foreach>
+        on duplicate key update
+           test_id = values(test_id) ,
+           student_id = values(student_id) ,
+           status = values(status) ,
+           answers = values(answers) ,
+           score = values(score) ,
+           complete_time = values(complete_time)     
+    </insert>
+
+</mapper>
+

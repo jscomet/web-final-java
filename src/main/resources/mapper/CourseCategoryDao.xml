@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.CourseCategoryDao">
+
+
+    <resultMap id="CourseCategoryMap" type="homework.web.entity.po.CourseCategory">
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="sortOrder" column="sort_order" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="CourseCategoryVOMap" type="homework.web.entity.vo.CourseCategoryVO" extends="CourseCategoryMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CourseCategoryVOMap">
+        select *
+        from `course_category`
+        where `category_id` = #{categoryId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="categoryId != null">
+                and `category_id` = #{categoryId}
+            </if>
+            <if test="name != null and name != ''">
+                and `name` = #{name}
+            </if>
+            <if test="sortOrder != null">
+                and `sort_order` = #{sortOrder}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="CourseCategoryVOMap">
+        select *
+        from `course_category`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `course_category`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="categoryId" useGeneratedKeys="true">
+        insert into course_category(name,sort_order,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.name},#{entity.sortOrder},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="categoryId" useGeneratedKeys="true">
+        insert into course_category(name,sort_order,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name},#{entity.sortOrder},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           name = values(name) ,
+           sort_order = values(sort_order) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

@@ -7,6 +7,7 @@ import homework.web.service.RoleService;
 import homework.web.entity.dto.RoleQuery;
 import homework.web.entity.po.Role;
 import homework.web.entity.vo.RoleVO;
+import homework.web.service.UserRoleService;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * 角色(Role)表服务实现类
  *
  * @author jscomet
- * @since 2024-12-02 19:37:40
+ * @since 2024-12-02 20:26:48
  */
 @Service("roleService")
 public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleService {
@@ -36,6 +37,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleDao, Role> implements RoleS
     @Override
     public int count(RoleQuery param) {
         return roleDao.count(param);
+    }
+
+    @Override
+    public List<Role> queryByUserId(Long userId) {
+
+        return roleDao.queryByUserId(userId);
     }
 }
 

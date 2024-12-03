@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.TestQuestionDao">
+
+
+    <resultMap id="TestQuestionMap" type="homework.web.entity.po.TestQuestion">
+        <result property="testId" column="test_id" jdbcType="INTEGER"/>
+        <result property="questionId" column="question_id" jdbcType="INTEGER"/>
+        <result property="sortOrder" column="sort_order" jdbcType="INTEGER"/>
+    </resultMap>
+    
+    <resultMap id="TestQuestionVOMap" type="homework.web.entity.vo.TestQuestionVO" extends="TestQuestionMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TestQuestionVOMap">
+        select *
+        from `test_question`
+        where `test_id` = #{testId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="testId != null">
+                and `test_id` = #{testId}
+            </if>
+            <if test="questionId != null">
+                and `question_id` = #{questionId}
+            </if>
+            <if test="sortOrder != null">
+                and `sort_order` = #{sortOrder}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="TestQuestionVOMap">
+        select *
+        from `test_question`
+        <include refid="queryCondition"/>
+        order by `sort_order`
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `test_question`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="testId" useGeneratedKeys="true">
+        insert into test_question(sort_order)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.sortOrder})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="testId" useGeneratedKeys="true">
+        insert into test_question(sort_order)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sortOrder})
+        </foreach>
+        on duplicate key update
+           sort_order = values(sort_order)     
+    </insert>
+
+</mapper>
+

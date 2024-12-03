@@ -3,24 +3,7 @@
 <mapper namespace="homework.web.dao.UserDao">
 
 
-    <resultMap id="UserMap" type="homework.web.entity.po.User">
-        <result property="userId" column="user_id" jdbcType="INTEGER"/>
-        <result property="username" column="username" jdbcType="VARCHAR"/>
-        <result property="password" column="password" jdbcType="VARCHAR"/>
-        <result property="salt" column="salt" jdbcType="VARCHAR"/>
-        <result property="email" column="email" jdbcType="VARCHAR"/>
-        <result property="roleId" column="role_id" jdbcType="INTEGER"/>
-        <result property="studentId" column="student_id" jdbcType="VARCHAR"/>
-        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
-        <result property="avatarUrl" column="avatar_url" jdbcType="VARCHAR"/>
-        <result property="signature" column="signature" jdbcType="VARCHAR"/>
-        <result property="status" column="status" jdbcType="INTEGER"/>
-        <result property="loginAttempts" column="login_attempts" jdbcType="INTEGER"/>
-        <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
-        <result property="lastLoginIp" column="last_login_ip" jdbcType="VARCHAR"/>
-        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-    </resultMap>
+    <resultMap id="UserMap" type="homework.web.entity.po.User" autoMapping="true" />
     
     <resultMap id="UserVOMap" type="homework.web.entity.vo.UserVO" extends="UserMap" autoMapping="true"/>
 

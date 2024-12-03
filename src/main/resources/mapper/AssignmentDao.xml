@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.AssignmentDao">
+
+
+    <resultMap id="AssignmentMap" type="homework.web.entity.po.Assignment">
+        <result property="assignmentId" column="assignment_id" jdbcType="INTEGER"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="deadline" column="deadline" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="AssignmentVOMap" type="homework.web.entity.vo.AssignmentVO" extends="AssignmentMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="AssignmentVOMap">
+        select *
+        from `assignment`
+        where `assignment_id` = #{assignmentId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="assignmentId != null">
+                and `assignment_id` = #{assignmentId}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="title != null and title != ''">
+                and `title` = #{title}
+            </if>
+            <if test="description != null and description != ''">
+                and `description` = #{description}
+            </if>
+            <if test="deadline != null">
+                and `deadline` = #{deadline}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="AssignmentVOMap">
+        select *
+        from `assignment`
+        <include refid="queryCondition"/>
+        order by `create_time` desc
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `assignment`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="assignmentId" useGeneratedKeys="true">
+        insert into assignment(course_id,title,description,deadline,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.courseId},#{entity.title},#{entity.description},#{entity.deadline},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="assignmentId" useGeneratedKeys="true">
+        insert into assignment(course_id,title,description,deadline,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.courseId},#{entity.title},#{entity.description},#{entity.deadline},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           course_id = values(course_id) ,
+           title = values(title) ,
+           description = values(description) ,
+           deadline = values(deadline) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

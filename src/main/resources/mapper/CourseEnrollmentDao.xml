@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.CourseEnrollmentDao">
+
+
+    <resultMap id="CourseEnrollmentMap" type="homework.web.entity.po.CourseEnrollment">
+        <result property="enrollmentId" column="enrollment_id" jdbcType="INTEGER"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="progress" column="progress" jdbcType="NUMERIC"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="CourseEnrollmentVOMap" type="homework.web.entity.vo.CourseEnrollmentVO" extends="CourseEnrollmentMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CourseEnrollmentVOMap">
+        select *
+        from `course_enrollment`
+        where `enrollment_id` = #{enrollmentId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="enrollmentId != null">
+                and `enrollment_id` = #{enrollmentId}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="studentId != null">
+                and `student_id` = #{studentId}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="progress != null">
+                and `progress` = #{progress}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="CourseEnrollmentVOMap">
+        select *
+        from `course_enrollment`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `course_enrollment`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="enrollmentId" useGeneratedKeys="true">
+        insert into course_enrollment(course_id,student_id,status,progress,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.courseId},#{entity.studentId},#{entity.status},#{entity.progress},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="enrollmentId" useGeneratedKeys="true">
+        insert into course_enrollment(course_id,student_id,status,progress,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.courseId},#{entity.studentId},#{entity.status},#{entity.progress},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           course_id = values(course_id) ,
+           student_id = values(student_id) ,
+           status = values(status) ,
+           progress = values(progress) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

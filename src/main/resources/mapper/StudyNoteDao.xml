@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.StudyNoteDao">
+
+
+    <resultMap id="StudyNoteMap" type="homework.web.entity.po.StudyNote">
+        <result property="noteId" column="note_id" jdbcType="INTEGER"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="StudyNoteVOMap" type="homework.web.entity.vo.StudyNoteVO" extends="StudyNoteMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="StudyNoteVOMap">
+        select *
+        from `study_note`
+        where `note_id` = #{noteId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="noteId != null">
+                and `note_id` = #{noteId}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="studentId != null">
+                and `student_id` = #{studentId}
+            </if>
+            <if test="content != null and content != ''">
+                and `content` = #{content}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="StudyNoteVOMap">
+        select *
+        from `study_note`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `study_note`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="noteId" useGeneratedKeys="true">
+        insert into study_note(course_id,student_id,content,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.courseId},#{entity.studentId},#{entity.content},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="noteId" useGeneratedKeys="true">
+        insert into study_note(course_id,student_id,content,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.courseId},#{entity.studentId},#{entity.content},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           course_id = values(course_id) ,
+           student_id = values(student_id) ,
+           content = values(content) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+
