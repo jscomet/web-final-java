@@ -18,7 +18,7 @@ spring:
   main:
     allow-circular-references: true
   mvc:
-    pathmatch:
+    path-match:
       matching-strategy: ant_path_matcher
 
 server:
@@ -63,7 +63,7 @@ app:
     upload-path: ./uploads
   jwt:
     # 设置jwt签名加密时使用的秘钥
-    secret-key: home-soft-activity
+    secret-key: homework-web-12838hsjckjqbznkzjczc1221
     # 设置jwt过期时间
     ttl: 7200000
     # 设置前端传递过来的令牌名称

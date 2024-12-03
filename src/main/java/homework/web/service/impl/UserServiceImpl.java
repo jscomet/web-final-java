@@ -206,8 +206,26 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String register(UserForm param) {
-        return "";
+        User user = new User();
+        BeanUtil.copyProperties(param, user);
+        PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(param.getPassword());
+        user.setPassword(passwordAndSalt.getPassword());
+        user.setSalt(passwordAndSalt.getSalt());
+        this.save(user);
+        Long userId = user.getUserId();
+        //更新用户角色信息
+        //判断是否有权限更新用户角色信息
+        if (AuthUtils.hasAnyRole(RoleType.SUPER_ADMIN, RoleType.TEACHER)) {
+            //更新用户角色信息
+            if (CollectionUtils.isNotEmpty(param.getRoleIds())) {
+                this.insertOrUpdateRoles(userId, param.getRoleIds());
+
+            }
+        }
+        // 根据userId生成token
+        return JwtUtils.createJWTByUserId(userId);
     }
 
     @Override

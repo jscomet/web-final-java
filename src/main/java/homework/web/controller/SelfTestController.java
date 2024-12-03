@@ -55,7 +55,7 @@ public class SelfTestController {
     }
 
     /**
-     * 发布测试试卷到指定课程
+     * 发布测试试卷到指定课程的学生
      *
      * @param id 自测试卷id
      * @param courseId 课程id

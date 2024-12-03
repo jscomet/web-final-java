@@ -67,7 +67,7 @@ public class TestRecordController {
 
     //TODO 答案的格式需要确定
     @Operation(summary = "学生提交考试答案")
-    @PostMapping("/submit}")
+    @PostMapping("/submit")
     public CommonResult<Boolean> submitTestRecord(@RequestBody TestRecordCommitParam answer) {
 
         return testRecordService.commit( answer) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);

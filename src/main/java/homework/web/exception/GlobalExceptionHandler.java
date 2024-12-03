@@ -2,6 +2,7 @@ package homework.web.exception;
 
 import homework.web.util.beans.CommonResult;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -19,6 +22,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
  * 全局异常处理
  */
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     /**
      * 自定义 HTTP 状态码异常
@@ -98,5 +102,18 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public CommonResult<Object> exceptionHandler(SizeLimitExceededException ex) {
         return CommonResult.error(HttpStatus.BAD_REQUEST, "文件上传大小%.2fMB超过限制大小%.2fMB".formatted(1.0 * ex.getActualSize() / 1024 / 1024, 1.0 * ex.getPermittedSize() / 1024 / 1024));
+    }
+    /**
+     * 重复插入异常
+     */
+    @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
+    @ResponseBody
+    public CommonResult<Object> handleException(SQLIntegrityConstraintViolationException e) {
+        log.error("重复插入异常", e);
+        if (e.getMessage() != null) {
+            return CommonResult.error(BAD_REQUEST,"重复插入异常："+ e.getMessage());
+        } else {
+            return CommonResult.error(BAD_REQUEST);
+        }
     }
 }

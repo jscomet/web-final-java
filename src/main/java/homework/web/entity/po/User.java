@@ -120,13 +120,6 @@ public class User implements Serializable {
     private String email;
 
     /**
-     * 角色ID
-     */
-    @Schema(description = "角色ID")
-    @TableField(value = "role_id")
-    private Integer roleId;
-
-    /**
      * 学号
      */
     @Schema(description = "学号")

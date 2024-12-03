@@ -54,13 +54,16 @@ public class JwtLoginInterceptor implements HandlerInterceptor {
             //2.1 校验令牌
             Claims payload = null;
             try {
-                payload = JwtUtils.parseJWT(appProperty.getJwt().getTokenName(), token);
-            } catch (Exception ignored) {
-
+                payload = JwtUtils.parseJWT(appProperty.getJwt().getSecretKey(), token);
+            } catch (Exception e) {
+                log.error("解析jwt异常", e);
             }
             //2. 根据userId 设置当前用户
             if (payload != null && payload.get(JwtClaimsConstant.USER_ID) != null) {
-                Long userId = (Long) payload.get(JwtClaimsConstant.USER_ID);
+                Object userIdObject = payload.get(JwtClaimsConstant.USER_ID);
+                //修复以下代码的类型转换错误
+                Long userId = userIdObject instanceof Integer ? Long.parseLong(userIdObject.toString()): (Long) userIdObject;
+
                 UserVO user = userService.queryById(userId);
                 AuthUtils.setUserDetails(user);
             }

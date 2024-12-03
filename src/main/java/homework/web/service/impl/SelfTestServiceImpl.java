@@ -11,7 +11,6 @@ import homework.web.entity.dto.SelfTestQuery;
 import homework.web.entity.po.SelfTest;
 import homework.web.entity.vo.SelfTestVO;
 import homework.web.util.AssertUtils;
-import jdk.incubator.vector.VectorOperators;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

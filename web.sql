@@ -180,7 +180,6 @@ create table user
     password        varchar(255)                        not null comment '密码',
     salt            varchar(50)                         not null comment '密码盐值',
     email           varchar(100)                        null comment '邮箱',
-    role_id         int                                 not null comment '角色ID',
     student_id      varchar(50)                         null comment '学号',
     nickname        varchar(50)                         null comment '昵称',
     avatar_url      varchar(255)                        null comment '头像URL',
@@ -207,6 +206,8 @@ create table user_role
     role_id int    not null comment '角色id',
     primary key (user_id, role_id)
 );
+
+
 
 INSERT INTO role (role_id, cname, ename) VALUES (1, '超级管理员', 'SUPER_ADMIN');
 INSERT INTO role (role_id, cname, ename) VALUES (2, '老师', 'TEACHER');
