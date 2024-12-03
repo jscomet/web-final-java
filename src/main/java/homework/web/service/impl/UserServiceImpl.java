@@ -135,14 +135,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         }
         user.setPassword(null);
         user.setSalt(null);
-        if(!AuthUtils.hasAnyRole(RoleType.SUPER_ADMIN, RoleType.TEACHER)){
-            user.setLoginAttempts(null);
-            user.setStatus(null);
-            user.setLastLoginIp(null);
-            user.setLastLoginTime(null);
-            user.setCreateTime(null);
-            user.setUpdateTime(null);
-        }
     }
 
     private void insertOrUpdateRoles(Long userId, List<Integer> roleIds) {
