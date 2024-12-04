@@ -11,7 +11,7 @@ data:
     password: jscomet_@_21232
 
 app:
-  domain: localhost
+  domain: http://localhost
   front:
     url: ${app.domain}/#
     index-url: ${app.front.url}

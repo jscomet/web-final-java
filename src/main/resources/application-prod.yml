@@ -11,4 +11,4 @@ data:
     password: jscomet_@_21232
 
 app:
-  domain: 47.115.57.164:81
+  domain: http://47.115.57.164:81
