@@ -1,10 +1,12 @@
 package homework.web.controller;
 
+import homework.web.annotation.PermissionAuthorize;
 import homework.web.entity.dto.TestRecordCommitParam;
 import homework.web.entity.dto.TestRecordQuery;
 import homework.web.entity.po.TestRecord;
 import homework.web.entity.vo.TestRecordVO;
 import homework.web.service.TestRecordService;
+import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,6 +46,18 @@ public class TestRecordController {
         int total = testRecordService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
+    @Operation(summary = "获取我的考试记录列表")
+    @GetMapping("/list-self")
+    @PermissionAuthorize
+    public CommonResult<ListResult<TestRecordVO>> getMyTestRecords(@RequestParam(defaultValue = "1") Integer current,
+                                                                 @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                 TestRecordQuery param) {
+        param.setStudentId(AuthUtils.getCurrentUserId());
+        List<TestRecordVO> list = testRecordService.queryAll(current, pageSize, param);
+        int total = testRecordService.count(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
 
     @Operation(summary = "添加考试记录")
     @PostMapping("/add")
