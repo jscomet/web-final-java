@@ -33,7 +33,7 @@ public class AIHelperUtils {
 
         // 构建请求体
         String requestBody = "{\"messages\": [{\"role\": \"user\", \"content\": \"" + 
-                           "你是一个聪明的ai，请你从这个活动评论中提炼要点,不需要分段。" + 
+                           "你是一个聪明的ai，如果你是教师，请你从这段话中提炼要点,不需要分段。" +
                            content + "\"}]}";
 
         // 封装参数
