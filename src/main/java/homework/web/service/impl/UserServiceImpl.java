@@ -273,5 +273,52 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         students.forEach(this::fillVO);
         return students;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String registerForStudent(UserStudentRegisterParam param) {
+        String studentId=param.getStudentId();
+        String password=param.getPassword();
+        //补充学生信息
+        User user = new User();
+        user.setStudentId(studentId);
+        user.setUsername(studentId);
+        PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(password);
+        user.setPassword(passwordAndSalt.getPassword());
+        user.setSalt(passwordAndSalt.getSalt());
+        //保存学生信息
+        this.save(user);
+
+        //添加学生角色身份
+        UserRole userRole = new UserRole();
+        userRole.setUserId(user.getUserId());
+        userRole.setRoleId(RoleType.STUDENT.getValue());
+        userRoleService.save(userRole);
+
+        // 根据userId生成token
+        return JwtUtils.createJWTByUserId(user.getUserId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String registerForTeacher(UserTeacherRegisterParam param) {
+        String username=param.getUsername();
+        String password=param.getPassword();
+        //补充老师信息
+        User user = new User();
+        user.setUsername(username);
+        PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(password);
+        user.setPassword(passwordAndSalt.getPassword());
+        user.setSalt(passwordAndSalt.getSalt());
+        //保存老师信息
+        this.save(user);
+        //添加老师角色身份
+        UserRole userRole = new UserRole();
+        userRole.setUserId(user.getUserId());
+        userRole.setRoleId(RoleType.TEACHER.getValue());
+        userRoleService.save(userRole);
+        // 根据userId生成token
+        return JwtUtils.createJWTByUserId(user.getUserId());
+    }
 }
 

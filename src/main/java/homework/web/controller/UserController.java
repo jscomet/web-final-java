@@ -2,11 +2,10 @@ package homework.web.controller;
 
 import homework.web.annotation.PermissionAuthorize;
 import homework.web.config.valid.AddGroup;
-import homework.web.entity.dto.UserForm;
-import homework.web.entity.dto.UserLoginPasswordParam;
-import homework.web.entity.dto.UserPasswordParam;
+import homework.web.entity.dto.*;
 import homework.web.entity.vo.UserAuthVO;
 import homework.web.entity.vo.UserVO;
+import homework.web.service.SystemConfigService;
 import homework.web.service.UserService;
 import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
@@ -31,10 +30,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Resource
     private UserService userService;
+    @Resource
+    private SystemConfigService systemConfigService;
 
     @Operation(summary = "获取当前用户信息")
     @GetMapping("/current")
-    @PermissionAuthorize
     public CommonResult<UserVO> getCurrentUser() {
         UserVO vo = AuthUtils.getUserDetails();
         //信息脱敏
@@ -54,11 +54,23 @@ public class UserController {
         return CommonResult.success(authVO);
     }
 
-    @Operation(summary = "用户注册")
-    @PostMapping("/register")
-    public CommonResult<UserAuthVO> register(@RequestBody @Validated(AddGroup.class) UserForm param) {
+    @Operation(summary = "用户学生注册")
+    @PostMapping("/register-for-student")
+    public CommonResult<UserAuthVO> registerForStudent(@RequestBody @Validated(AddGroup.class) UserStudentRegisterParam param) {
+        AssertUtils.isTrue(systemConfigService.isEnableSelfRegister(),HttpStatus.BAD_REQUEST,"学生注册未开放");
         AssertUtils.notEmpty(param.getPassword(),HttpStatus.BAD_REQUEST,"未设置密码");
-        String token=userService.register(param);
+        String token=userService.registerForStudent(param);
+        UserAuthVO authVO=new UserAuthVO();
+        authVO.setToken(token);
+        return CommonResult.success(authVO);
+    }
+
+    @Operation(summary = "老师用户注册")
+    @PostMapping("/register-for-teacher")
+    public CommonResult<UserAuthVO> registerForTeacher(@RequestBody @Validated(AddGroup.class) UserTeacherRegisterParam param) {
+        AssertUtils.isTrue(systemConfigService.isEnableSelfRegister(),HttpStatus.BAD_REQUEST,"老师注册未开放");
+        AssertUtils.notEmpty(param.getPassword(),HttpStatus.BAD_REQUEST,"未设置密码");
+        String token=userService.registerForTeacher(param);
         UserAuthVO authVO=new UserAuthVO();
         authVO.setToken(token);
         return CommonResult.success(authVO);

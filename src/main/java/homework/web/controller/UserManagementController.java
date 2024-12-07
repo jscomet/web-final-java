@@ -11,6 +11,7 @@ import homework.web.entity.po.UserRole;
 import homework.web.entity.vo.UserAuthVO;
 import homework.web.entity.vo.UserVO;
 import homework.web.service.RoleService;
+import homework.web.service.SystemConfigService;
 import homework.web.service.UserRoleService;
 import homework.web.service.UserService;
 import homework.web.util.AssertUtils;
@@ -40,6 +41,8 @@ public class UserManagementController {
     private UserService userService;
     @Resource
     private UserRoleService userRoleService;
+    @Resource
+    private SystemConfigService systemConfigService;
 
     @Operation(summary = "获取指定用户信息")
     @GetMapping("/info/{id}")
@@ -50,12 +53,12 @@ public class UserManagementController {
         return vo != null ? CommonResult.success(vo) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
 
-    @Operation(summary = "获取用户列表")
+    @Operation(summary = "获取所有用户列表")
     @GetMapping("/list")
     @PermissionAuthorize({RoleType.TEACHER})
     public CommonResult<ListResult<UserVO>> getUsers(@RequestParam(defaultValue = "1") Integer current,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            UserQuery param) {
+                                                     @RequestParam(defaultValue = "10") Integer pageSize,
+                                                     UserQuery param) {
         List<UserVO> list = userService.queryAll(current, pageSize, param);
         list.forEach(userService::desensitize);
         int total = userService.count(param);
@@ -66,8 +69,8 @@ public class UserManagementController {
     @GetMapping("/list-students")
     @PermissionAuthorize({RoleType.TEACHER})
     public CommonResult<ListResult<UserVO>> getStudents(@RequestParam(defaultValue = "1") Integer current,
-                                                     @RequestParam(defaultValue = "10") Integer pageSize,
-                                                     UserQuery param) {
+                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                        UserQuery param) {
         param.setRoleIds(List.of(RoleType.STUDENT.getValue()));
         List<UserVO> list = userService.queryAll(current, pageSize, param);
         list.forEach(userService::desensitize);
@@ -86,8 +89,8 @@ public class UserManagementController {
     @PutMapping("/update/{id}")
     @PermissionAuthorize(RoleType.TEACHER)
     public CommonResult<Boolean> updateUser(@PathVariable Long id,
-            @RequestBody @Validated(UpdateGroup.class) UserForm param) {
-        return userService.updateByForm(id,param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+                                            @RequestBody @Validated(UpdateGroup.class) UserForm param) {
+        return userService.updateByForm(id, param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
     @Operation(summary = "删除指定用户")
@@ -101,7 +104,7 @@ public class UserManagementController {
     @PutMapping("/reset-password")
     @PermissionAuthorize(RoleType.TEACHER)
     public CommonResult<Boolean> resetPassword(@RequestBody @Validated UserResetPasswordParam param) {
-        return userService.resetPassword(param.getUserId(),param.getNewPassword()) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
+        return userService.resetPassword(param.getUserId(), param.getNewPassword()) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
 
     @Operation(summary = "启用禁用用户")
@@ -111,6 +114,18 @@ public class UserManagementController {
         return userService.enableDisableUser(id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
 
+    @Operation(summary = "是否启用用户自主注册")
+    @GetMapping("/is-enable-user-register")
+    public CommonResult<Boolean> isEnableSelfRegister() {
+        return CommonResult.success(systemConfigService.isEnableSelfRegister());
+    }
+
+    @Operation(summary = "设置是否启用用户自主注册")
+    @PutMapping("/set-enable-user-register")
+    @PermissionAuthorize(RoleType.TEACHER)
+    public CommonResult<Boolean> setEnableUserRegister(@RequestParam Boolean enable) {
+        return systemConfigService.setEnableSelfRegister(enable) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+    }
 
 
 }

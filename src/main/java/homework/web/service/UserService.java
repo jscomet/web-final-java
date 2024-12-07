@@ -112,5 +112,19 @@ public interface UserService extends IService<User> {
      * @return 学生列表
      */
     List<UserVO> queryStudentsByCourseId(Long courseId);
+    /**
+     * 通过表单参数注册学生
+     *
+     * @param param 表单参数
+     * @return token
+     */
+    String registerForStudent(UserStudentRegisterParam param);
+    /**
+     * 通过表单参数注册老师
+     *
+     * @param param 表单参数
+     * @return token
+     */
+    String registerForTeacher(UserTeacherRegisterParam param);
 }
 
