@@ -88,8 +88,11 @@
         <include refid="queryCondition"/>
         <choose>
             <when test="sorter != null and sorter.column != null and sorter.mode != null">
-                order by ${sorter.column} ${sorter.mode}
+                order by  ${sorter.column} ${sorter.mode} , is_recommended desc ,course_id
             </when>
+            <otherwise>
+                order by is_recommended desc ,course_id
+            </otherwise>
         </choose>
     </select>
 

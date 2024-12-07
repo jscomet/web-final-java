@@ -7,6 +7,7 @@ import homework.web.service.CourseMaterialService;
 import homework.web.entity.dto.CourseMaterialQuery;
 import homework.web.entity.po.CourseMaterial;
 import homework.web.entity.vo.CourseMaterialVO;
+import homework.web.service.CourseService;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 
@@ -21,16 +22,32 @@ import java.util.List;
 public class CourseMaterialServiceImpl extends ServiceImpl<CourseMaterialDao, CourseMaterial> implements CourseMaterialService {
     @Resource
     private CourseMaterialDao courseMaterialDao;
-
+    @Resource
+    private CourseService courseService;
     @Override
     public CourseMaterialVO queryById(Long materialId) {
-        return courseMaterialDao.queryById(materialId);
+        CourseMaterialVO vo = courseMaterialDao.queryById(materialId);
+        fillVO(vo);
+        return vo;
     }
 
     @Override
     public List<CourseMaterialVO> queryAll(int current, int pageSize, CourseMaterialQuery param) {
-        PageHelper.startPage(current, pageSize);
-        return courseMaterialDao.queryAll(param);
+        if(current > 0 && pageSize > 0) {
+            PageHelper.startPage(current, pageSize);
+        }
+        List<CourseMaterialVO> list = courseMaterialDao.queryAll(param);
+        list.forEach(this::fillVO);
+        return list;
+    }
+
+    private void fillVO(CourseMaterialVO vo){
+        if(vo == null){
+            return;
+        }
+        if(vo.getCourseId() != null){
+            vo.setCourse(courseService.queryById(vo.getCourseId()));
+        }
     }
 
     @Override

@@ -6,6 +6,7 @@ import homework.web.entity.dto.CourseEnrollmentQuery;
 import homework.web.entity.po.Course;
 import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.vo.CourseEnrollmentVO;
+import homework.web.entity.vo.CourseVO;
 import homework.web.service.CourseEnrollmentService;
 import homework.web.service.CourseService;
 import homework.web.util.AssertUtils;
@@ -35,8 +36,6 @@ import java.util.Objects;
 public class CourseEnrollmentController {
     @Resource
     private CourseEnrollmentService courseEnrollmentService;
-    @Resource
-    private CourseService courseService;
 
     @Operation(summary = "获取指定课程注册信息")
     @GetMapping("/info/{id}")
@@ -55,6 +54,19 @@ public class CourseEnrollmentController {
         return CommonResult.success(new ListResult<>(list, total));
     }
 
+    @Operation(summary = "获取我的课程注册列表")
+    @GetMapping("/list-self")
+    @PermissionAuthorize
+    public CommonResult<ListResult<CourseEnrollmentVO>> getMyCourseEnrollments(@RequestParam(defaultValue = "1") Integer current,
+                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                             CourseEnrollmentQuery param) {
+        param.setStudentId(AuthUtils.getCurrentUserId());
+        List<CourseEnrollmentVO> list = courseEnrollmentService.queryAll(current, pageSize, param);
+        int total = courseEnrollmentService.count(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
+
     /**
      * 学生添加课程注册
      *
@@ -67,6 +79,7 @@ public class CourseEnrollmentController {
     public CommonResult<Boolean> addCourseEnrollment(@PathVariable Long courseId) {
         return courseEnrollmentService.addByCourseId(courseId) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
+
     /**
      * 学生取消课程注册
      *
@@ -77,14 +90,8 @@ public class CourseEnrollmentController {
     @PutMapping("/quit/{id}")
     @PermissionAuthorize
     public CommonResult<Boolean> quitCourseEnrollment(@PathVariable Long id) {
-        // 查询课程注册信息
-        CourseEnrollment courseEnrollment = courseEnrollmentService.queryById(id);
-        AssertUtils.notNull(courseEnrollment, HttpStatus.NOT_FOUND);
-        AssertUtils.isTrue(Objects.equals(AuthUtils.getCurrentUserId(), courseEnrollment.getStudentId()), HttpStatus.FORBIDDEN);
-        //更新课程状态
-        LambdaUpdateWrapper<CourseEnrollment> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(CourseEnrollment::getEnrollmentId, id).set(CourseEnrollment::getStatus, CourseEnrollment.Status.QUIT);
-        return courseEnrollmentService.update(updateWrapper) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
+        Long studentId = AuthUtils.getCurrentUserId();
+        return courseEnrollmentService.quit(studentId, id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
 
     @Operation(summary = "删除指定课程注册")

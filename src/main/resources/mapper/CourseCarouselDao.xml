@@ -50,6 +50,7 @@
         select *
         from `course_carousel`
         <include refid="queryCondition"/>
+        order by `sort_order` , carousel_id
     </select>
 
     <!--统计总行数-->

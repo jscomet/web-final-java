@@ -38,7 +38,9 @@ public class CourseServiceImpl extends ServiceImpl<CourseDao, Course> implements
 
     @Override
     public List<CourseVO> queryAll(int current, int pageSize, CourseQuery param) {
-        PageHelper.startPage(current, pageSize);
+        if(current > 0 && pageSize > 0) {
+            PageHelper.startPage(current, pageSize);
+        }
         List<CourseVO> vos = courseDao.queryAll(param);
         vos.forEach(this::fillVO);
         return vos;
