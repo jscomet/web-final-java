@@ -34,12 +34,19 @@ public interface DiscussionService extends IService<Discussion> {
     List<DiscussionVO> queryAll(int current, int pageSize, DiscussionQuery param);
 
     /**
+     * 将讨论区列表转换为树形结构
+     *
+     * @param list 讨论区列表
+     * @return 树形结构
+     */
+    List<DiscussionVO> convertToTree(List<DiscussionVO> list);
+
+    /**
      * 通过实体作为筛选条件计数
      *
      * @param param 查询参数
      * @return 数量
      */
     int count(DiscussionQuery param);
-
 }
 

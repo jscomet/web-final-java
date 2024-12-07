@@ -2,7 +2,6 @@ package homework.web.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import homework.web.annotation.PermissionAuthorize;
-import homework.web.constant.enums.RoleType;
 import homework.web.entity.dto.DiscussionQuery;
 import homework.web.entity.po.Course;
 import homework.web.entity.po.Discussion;
@@ -46,35 +45,40 @@ public class DiscussionController {
     @Operation(summary = "获取讨论列表")
     @GetMapping("/list")
     public CommonResult<ListResult<DiscussionVO>> getDiscussions(@RequestParam(defaultValue = "1") Integer current,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            DiscussionQuery param) {
-        List<DiscussionVO> list = discussionService.queryAll(current, pageSize, param);
+                                                                 @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                 DiscussionQuery param) {
 
-        int total = discussionService.count(param);
-        return CommonResult.success(new ListResult<>(list, total));
+        List<DiscussionVO> list = discussionService.queryAll(current, pageSize, param);
+        // 将讨论区列表转换为树形结构
+        List<DiscussionVO> tree = discussionService.convertToTree(list);
+        int total = tree.size();
+        return CommonResult.success(new ListResult<>(tree, total));
     }
 
     @Operation(summary = "获取我的讨论列表")
     @GetMapping("/list-self")
     @PermissionAuthorize
     public CommonResult<ListResult<DiscussionVO>> getMyDiscussions(@RequestParam(defaultValue = "1") Integer current,
-                                                                 @RequestParam(defaultValue = "10") Integer pageSize,
-                                                                 DiscussionQuery param) {
+                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                             DiscussionQuery param) {
         param.setUserId(AuthUtils.getCurrentUserId());
         List<DiscussionVO> list = discussionService.queryAll(current, pageSize, param);
-        int total = discussionService.count(param);
-        return CommonResult.success(new ListResult<>(list, total));
+        // 将讨论区列表转换为树形结构
+        List<DiscussionVO> tree = discussionService.convertToTree(list);
+        int total = tree.size();
+        return CommonResult.success(new ListResult<>(tree, total));
     }
 
     /**
      * 添加讨论区
+     *
      * @param courseId 课程id
-     * @param param 讨论区信息
+     * @param param    讨论区信息
      * @return 是否添加成功
      */
     @Operation(summary = "添加讨论")
     @PostMapping("/add/{courseId}")
-    public CommonResult<Boolean> addDiscussion(@PathVariable Long courseId,@RequestBody Discussion param) {
+    public CommonResult<Boolean> addDiscussion(@PathVariable Long courseId, @RequestBody Discussion param) {
         // 检查课程是否存在
         LambdaQueryWrapper<Course> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Course::getCourseId, courseId);
@@ -89,10 +93,9 @@ public class DiscussionController {
 
     @Operation(summary = "修改指定讨论区信息")
     @PutMapping("/update/{id}")
-    @PermissionAuthorize(RoleType.TEACHER)
     public CommonResult<Boolean> updateDiscussion(@PathVariable Long id,
-            @RequestBody Discussion param) {
-            param.setDiscussionId(id);
+                                                  @RequestBody Discussion param) {
+        param.setDiscussionId(id);
         return discussionService.updateById(param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 

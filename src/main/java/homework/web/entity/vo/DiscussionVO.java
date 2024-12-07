@@ -17,5 +17,12 @@ import java.util.List;
 @Data
 public class DiscussionVO extends Discussion {
     @Schema(description = "子评论")
-    private List<Discussion> children;
+    private List<DiscussionVO> children;
+
+    @Schema(description = "课程信息")
+    private CourseVO course;
+
+    @Schema(description = "用户信息")
+    private UserVO user;
+
 }

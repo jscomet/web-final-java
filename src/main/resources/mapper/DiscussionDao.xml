@@ -50,6 +50,7 @@
         select *
         from `discussion`
         <include refid="queryCondition"/>
+        order by `create_time` ,discussion_id
     </select>
 
     <!--统计总行数-->
