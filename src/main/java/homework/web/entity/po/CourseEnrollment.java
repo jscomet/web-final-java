@@ -28,17 +28,21 @@ public class CourseEnrollment implements Serializable {
     @Getter
     public enum Status {
         /**
+         * 未开始
+         */
+        UNSTART(0),
+        /**
          * 进行中
          */
-        ONGOING(0),
+        ONGOING(1),
         /**
          * 已完成
          */
-        COMPLETED(1),
+        COMPLETED(2),
         /**
          * 已退出
          */
-        QUIT(2);
+        QUIT(3);
         @EnumValue
         @JsonValue
         private final int value;
@@ -70,9 +74,9 @@ public class CourseEnrollment implements Serializable {
     private Long studentId;
 
     /**
-     * 状态：0-进行中、1-已完成、2-已退出
+     * 状态：0-未开始,1-进行中、2-已完成、3-已退出
      */
-    @Schema(description = "状态：0-进行中、1-已完成、2-已退出")
+    @Schema(description = "状态：0-未开始,1-进行中、2-已完成、3-已退出")
     @TableField(value = "status")
     private Status status;
 

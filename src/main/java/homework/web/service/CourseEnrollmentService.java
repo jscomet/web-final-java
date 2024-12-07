@@ -52,5 +52,12 @@ public interface CourseEnrollmentService extends IService<CourseEnrollment> {
      * @return 学生id列表
      */
     List<Long> getStudentIdsByCourseId(Long courseId);
+
+    /**
+     * 根据学生id获取课程id
+     * @param studentId 学生id
+     * @return 课程id列表
+     */
+    List<Long> getCourseIdsByStudentId(Long studentId);
 }
 

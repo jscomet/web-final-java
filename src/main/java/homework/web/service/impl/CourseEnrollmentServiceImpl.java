@@ -70,9 +70,18 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
 
     @Override
     public List<Long> getStudentIdsByCourseId(Long courseId) {
-        return this.lambdaQuery().eq(CourseEnrollment::getCourseId, courseId).list()
+        return this.lambdaQuery().eq(CourseEnrollment::getCourseId, courseId)
+                .list()
                 .stream()
                 .map(CourseEnrollment::getStudentId)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public List<Long> getCourseIdsByStudentId(Long studentId) {
+        return this.lambdaQuery().eq(CourseEnrollment::getStudentId, studentId).list()
+                .stream()
+                .map(CourseEnrollment::getCourseId)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }
