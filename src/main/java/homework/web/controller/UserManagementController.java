@@ -7,8 +7,11 @@ import homework.web.config.valid.UpdateGroup;
 import homework.web.constant.enums.RoleType;
 import homework.web.entity.dto.*;
 import homework.web.entity.po.User;
+import homework.web.entity.po.UserRole;
 import homework.web.entity.vo.UserAuthVO;
 import homework.web.entity.vo.UserVO;
+import homework.web.service.RoleService;
+import homework.web.service.UserRoleService;
 import homework.web.service.UserService;
 import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
@@ -35,6 +38,8 @@ import java.util.List;
 public class UserManagementController {
     @Resource
     private UserService userService;
+    @Resource
+    private UserRoleService userRoleService;
 
     @Operation(summary = "获取指定用户信息")
     @GetMapping("/info/{id}")
@@ -51,6 +56,19 @@ public class UserManagementController {
     public CommonResult<ListResult<UserVO>> getUsers(@RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer pageSize,
             UserQuery param) {
+        List<UserVO> list = userService.queryAll(current, pageSize, param);
+        list.forEach(userService::desensitize);
+        int total = userService.count(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
+    @Operation(summary = "获取学生列表")
+    @GetMapping("/list-students")
+    @PermissionAuthorize({RoleType.TEACHER})
+    public CommonResult<ListResult<UserVO>> getStudents(@RequestParam(defaultValue = "1") Integer current,
+                                                     @RequestParam(defaultValue = "10") Integer pageSize,
+                                                     UserQuery param) {
+        param.setRoleIds(List.of(RoleType.STUDENT.getValue()));
         List<UserVO> list = userService.queryAll(current, pageSize, param);
         list.forEach(userService::desensitize);
         int total = userService.count(param);

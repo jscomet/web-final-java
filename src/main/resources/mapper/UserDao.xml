@@ -65,6 +65,14 @@
             <if test="gender != null">
                 and `gender` = #{gender}
             </if>
+            <if test="roleIds != null">
+                and `user_id` in
+                (select ur.`user_id` from `user_role` ur where ur.`role_id` in
+                <foreach collection="roleIds" item="roleId" separator="," open="(" close=")">
+                    #{roleId}
+                </foreach>
+                )
+            </if>
         </where>
     </sql>
 

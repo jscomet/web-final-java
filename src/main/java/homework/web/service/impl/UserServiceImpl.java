@@ -10,18 +10,22 @@ import homework.web.entity.dto.*;
 import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.po.User;
 import homework.web.entity.po.UserRole;
+import homework.web.exception.HttpErrorException;
 import homework.web.service.*;
 import homework.web.entity.vo.UserVO;
 import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
 import homework.web.util.JwtUtils;
 import homework.web.util.PasswordUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -98,11 +102,32 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     public String loginByPassword(UserLoginPasswordParam param) {
         //查询用户
         User user = this.lambdaQuery().eq(User::getUsername, param.getUsername()).one();
+        if (user == null) {
+            user = this.lambdaQuery().eq(User::getStudentId, param.getUsername()).one();
+        }
         AssertUtils.notNull(user, HttpStatus.NOT_FOUND, "用户不存在");
+
         //验证密码
-        AssertUtils.isTrue(PasswordUtils.verifyPassword(param.getPassword(), user.getPassword(), user.getSalt()), HttpStatus.BAD_REQUEST, "密码错误");
-        //返回token
-        return JwtUtils.createJWTByUserId(user.getUserId());
+        if (PasswordUtils.verifyPassword(param.getPassword(), user.getSalt(), user.getPassword())) {
+            //更新用户登录时间
+            LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(User::getUserId, user.getUserId())
+                    .set(User::getLastLoginTime, LocalDateTime.now())
+                    .set(User::getLoginAttempts, 0);
+            this.update(updateWrapper);
+            //返回token
+            return JwtUtils.createJWTByUserId(user.getUserId());
+        } else {
+            //更新用户登录次数
+            LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(User::getUserId, user.getUserId())
+                    .set(User::getLastLoginTime, LocalDateTime.now())
+                    .set(User::getLoginAttempts, user.getLoginAttempts() + 1);
+            this.update(updateWrapper);
+            throw new HttpErrorException(HttpStatus.BAD_REQUEST, "密码错误");
+        }
+
+
     }
 
     @Override
@@ -116,7 +141,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         User user = this.lambdaQuery().eq(User::getUserId, param.getUserId()).one();
         AssertUtils.notNull(user, HttpStatus.NOT_FOUND, "用户不存在");
         //验证密码
-        AssertUtils.isTrue(PasswordUtils.verifyPassword(param.getOldPassword(), user.getPassword(), user.getSalt()), HttpStatus.BAD_REQUEST, "原密码错误");
+        AssertUtils.isTrue(PasswordUtils.verifyPassword(param.getNewPassword(), user.getSalt(), user.getPassword()), HttpStatus.BAD_REQUEST, "原密码错误");
         //生成新的密码和盐
         PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(param.getNewPassword());
         //更新密码和盐
@@ -179,21 +204,28 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     public boolean saveByForm(UserForm param) {
         User user = new User();
         BeanUtil.copyProperties(param, user);
-        //使用默认用户名作为默认密码
-        AssertUtils.notNull(user.getUsername(), HttpStatus.BAD_REQUEST, "用户名不能为空");
-        PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(user.getUsername());
-        user.setPassword(passwordAndSalt.getPassword());
-        user.setSalt(passwordAndSalt.getSalt());
+
+        if (StringUtils.isBlank(user.getPassword())) {
+            //使用默认用户名作为默认密码
+            AssertUtils.notNull(user.getUsername(), HttpStatus.BAD_REQUEST, "用户名不能为空");
+            PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(user.getUsername());
+            user.setPassword(passwordAndSalt.getPassword());
+            user.setSalt(passwordAndSalt.getSalt());
+        } else {
+            PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(user.getPassword());
+            user.setPassword(passwordAndSalt.getPassword());
+            user.setSalt(passwordAndSalt.getSalt());
+        }
+
         this.save(user);
         Long userId = user.getUserId();
-        //判断是否有权限更新用户角色信息
-        if (AuthUtils.hasAnyRole(RoleType.SUPER_ADMIN, RoleType.TEACHER)) {
-            //更新用户角色信息
-            if (CollectionUtils.isNotEmpty(param.getRoleIds())) {
-                this.insertOrUpdateRoles(userId, param.getRoleIds());
-
-            }
+        //
+        if (CollectionUtils.isEmpty(param.getRoleIds())) {
+            param.setRoleIds(List.of(RoleType.GUEST.getValue()));
         }
+        //更新用户角色信息
+        this.insertOrUpdateRoles(userId, param.getRoleIds());
+
         return true;
     }
 
@@ -207,13 +239,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         user.setSalt(passwordAndSalt.getSalt());
         this.save(user);
         Long userId = user.getUserId();
+
+
         //更新用户角色信息
         //判断是否有权限更新用户角色信息
         if (AuthUtils.hasAnyRole(RoleType.SUPER_ADMIN, RoleType.TEACHER)) {
             //更新用户角色信息
             if (CollectionUtils.isNotEmpty(param.getRoleIds())) {
                 this.insertOrUpdateRoles(userId, param.getRoleIds());
-
             }
         }
         // 根据userId生成token

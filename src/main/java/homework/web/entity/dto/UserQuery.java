@@ -4,6 +4,8 @@ import homework.web.entity.po.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 用户(User)查询参数
  *
@@ -13,4 +15,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserQuery extends User {
+    private List<Integer> roleIds;
 }

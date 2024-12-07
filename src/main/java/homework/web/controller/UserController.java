@@ -14,6 +14,7 @@ import homework.web.util.beans.CommonResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,7 @@ public class UserController {
 
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    public CommonResult<UserAuthVO> loginByPassword(@RequestBody @Validated UserLoginPasswordParam param) {
+    public CommonResult<UserAuthVO> loginByPassword(@RequestBody @Validated UserLoginPasswordParam param, HttpServletRequest request) {
 
         String token = userService.loginByPassword(param);
 
