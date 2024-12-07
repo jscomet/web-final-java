@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.SystemConfigDao">
+
+
+    <resultMap id="SystemConfigMap" type="homework.web.entity.po.SystemConfig">
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="cnName" column="cn_name" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="value" column="value" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap id="SystemConfigVOMap" type="homework.web.entity.vo.SystemConfigVO" extends="SystemConfigMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="SystemConfigVOMap">
+        select *
+        from `system_config`
+        where `name` = #{name}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="name != null and name != ''">
+                and `name` = #{name}
+            </if>
+            <if test="cnName != null and cnName != ''">
+                and `cn_name` = #{cnName}
+            </if>
+            <if test="type != null and type != ''">
+                and `type` = #{type}
+            </if>
+            <if test="value != null and value != ''">
+                and `value` = #{value}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAll" resultMap="SystemConfigVOMap">
+        select *
+        from `system_config`
+        <include refid="queryCondition"/>
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Integer">
+        select count(1)
+        from `system_config`
+        <include refid="queryCondition"/>
+    </select>
+ 
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="name" useGeneratedKeys="true">
+        insert into system_config(cn_name,type,value)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.cnName},#{entity.type},#{entity.value})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="name" useGeneratedKeys="true">
+        insert into system_config(cn_name,type,value)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.cnName},#{entity.type},#{entity.value})
+        </foreach>
+        on duplicate key update
+           cn_name = values(cn_name) ,
+           type = values(type) ,
+           value = values(value)     
+    </insert>
+
+</mapper>
+
