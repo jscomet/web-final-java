@@ -30,7 +30,6 @@ public class AssignmentSubmissionCommitParam implements java.io.Serializable {
      */
     @Schema(description = "提交内容")
     @TableField(value = "content")
-    @NotBlank(message = "提交内容不能为空", groups = {AddGroup.class})
     private String content;
 
     /**

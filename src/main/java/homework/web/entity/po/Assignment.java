@@ -68,7 +68,6 @@ public class Assignment implements Serializable {
      */
     @Schema(description = "创建时间")    
     @TableField(value = "create_time")
-    @NotNull(message = "创建时间不能为空", groups = {AddGroup.class})
     private LocalDateTime createTime;
 
 

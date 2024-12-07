@@ -12,6 +12,7 @@ import homework.web.entity.dto.AssignmentQuery;
 import homework.web.entity.po.Assignment;
 import homework.web.entity.vo.AssignmentVO;
 import homework.web.service.AssignmentSubmissionService;
+import homework.web.service.CourseService;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,16 +32,22 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentDao, Assignment
     private AssignmentDao assignmentDao;
     @Resource
     private AssignmentSubmissionService assignmentSubmissionService;
+    @Resource
+    private CourseService courseService;
 
     @Override
     public AssignmentVO queryById(Long assignmentId) {
-        return assignmentDao.queryById(assignmentId);
+        AssignmentVO vo = assignmentDao.queryById(assignmentId);
+        this.fillVO(vo);
+        return vo;
     }
 
     @Override
     public List<AssignmentVO> queryAll(int current, int pageSize, AssignmentQuery param) {
         PageHelper.startPage(current, pageSize);
-        return assignmentDao.queryAll(param);
+        List<AssignmentVO> list = assignmentDao.queryAll(param);
+        list.forEach(this::fillVO);
+        return list;
     }
 
     private void fillVO(AssignmentVO vo) {
@@ -54,6 +61,10 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentDao, Assignment
             // 获取作业提交统计
             AssignmentSubmitStatVO stat = assignmentSubmissionService.querySubmitStat(param);
             vo.setSubmitStat(stat);
+        }
+        if(vo.getCourseId() != null){
+            // 填充课程信息
+            vo.setCourse(courseService.queryById(vo.getCourseId()));
         }
     }
 

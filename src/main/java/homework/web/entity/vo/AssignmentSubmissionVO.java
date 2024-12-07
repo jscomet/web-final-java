@@ -14,5 +14,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AssignmentSubmissionVO extends AssignmentSubmission {
-
+    @Schema(description = "作业信息")
+    private AssignmentVO assignment;
+    @Schema(description = "学生信息")
+    private UserVO student;
 }

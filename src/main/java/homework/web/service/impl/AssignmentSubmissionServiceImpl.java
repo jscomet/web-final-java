@@ -6,11 +6,13 @@ import homework.web.entity.dto.AssignmentFeedbackParam;
 import homework.web.entity.dto.AssignmentSubmissionCommitParam;
 import homework.web.entity.po.AssignmentSubmission;
 import homework.web.entity.vo.AssignmentSubmitStatVO;
+import homework.web.service.AssignmentService;
 import homework.web.service.AssignmentSubmissionService;
 import homework.web.entity.dto.AssignmentSubmissionQuery;
 import homework.web.entity.po.AssignmentSubmission;
 import homework.web.entity.vo.AssignmentSubmissionVO;
 import homework.web.service.CourseEnrollmentService;
+import homework.web.service.UserService;
 import homework.web.util.AssertUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 /**
  * 作业提交(AssignmentSubmission)表服务实现类
@@ -31,10 +34,16 @@ public class AssignmentSubmissionServiceImpl extends ServiceImpl<AssignmentSubmi
     private AssignmentSubmissionDao assignmentSubmissionDao;
     @Resource
     private CourseEnrollmentService courseEnrollmentService;
+    @Resource
+    private AssignmentService assignmentService;
+    @Resource
+    private UserService userService;
 
     @Override
     public AssignmentSubmissionVO queryById(Long submissionId) {
-        return assignmentSubmissionDao.queryById(submissionId);
+        AssignmentSubmissionVO vo = assignmentSubmissionDao.queryById(submissionId);
+        fillVO(vo);
+        return vo;
     }
 
     @Override
@@ -42,7 +51,23 @@ public class AssignmentSubmissionServiceImpl extends ServiceImpl<AssignmentSubmi
         if(current > 0 && pageSize > 0){
             PageHelper.startPage(current, pageSize);
         }
-        return assignmentSubmissionDao.queryAll(param);
+        List<AssignmentSubmissionVO> list = assignmentSubmissionDao.queryAll(param);
+        list.forEach(this::fillVO);
+        return list;
+    }
+
+    private void fillVO(AssignmentSubmissionVO vo){
+        if(vo == null){
+            return;
+        }
+        if(vo.getAssignmentId() != null){
+            vo.setAssignment(assignmentService.queryById(vo.getAssignmentId()));
+        }
+        if(vo.getStudentId() != null){
+            vo.setStudent(userService.queryById(vo.getStudentId()));
+            userService.desensitize(vo.getStudent());
+        }
+
     }
 
     @Override
@@ -81,7 +106,7 @@ public class AssignmentSubmissionServiceImpl extends ServiceImpl<AssignmentSubmi
             return submission;
         }).toList();
         // 批量保存
-        return this.saveBatch(submissions);
+        return this.saveOrUpdateBatch(submissions);
     }
 
     @Override
@@ -102,7 +127,8 @@ public class AssignmentSubmissionServiceImpl extends ServiceImpl<AssignmentSubmi
         updateParam.setSubmissionId(id);
         updateParam.setStudentId(studentId);
         updateParam.setStatus(AssignmentSubmission.Status.UNCOMMITTED);
-        return this.updateById(submission);
+        updateParam.setSubmitTime(LocalDateTime.now());
+        return this.updateById(updateParam);
     }
 
     @Override
@@ -121,7 +147,7 @@ public class AssignmentSubmissionServiceImpl extends ServiceImpl<AssignmentSubmi
         BeanUtils.copyProperties(param, submission);
         updateParam.setSubmissionId(id);
         updateParam.setStatus(AssignmentSubmission.Status.CORRECTED);
-        return this.updateById(submission);
+        return this.updateById(updateParam);
     }
 }
 

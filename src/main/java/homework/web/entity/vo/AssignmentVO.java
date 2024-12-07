@@ -19,4 +19,7 @@ public class AssignmentVO extends Assignment {
      */
     @Schema(description = "作业提交情况统计")
     private AssignmentSubmitStatVO submitStat;
+
+    @Schema(description = "课程信息")
+    private CourseVO course;
 }

@@ -57,6 +57,18 @@ public class AssignmentSubmissionController {
         int total = assignmentSubmissionService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
+    @Operation(summary = "获取我的作业提交列表")
+    @GetMapping("/list-self")
+    @PermissionAuthorize
+    public CommonResult<ListResult<AssignmentSubmissionVO>> getMyAssignmentSubmissions(@RequestParam(defaultValue = "1") Integer current,
+                                                                                     @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                     AssignmentSubmissionQuery param) {
+        Long studentId = AuthUtils.getCurrentUserId();
+        param.setStudentId(studentId);
+        List<AssignmentSubmissionVO> list = assignmentSubmissionService.queryAll(current, pageSize, param);
+        int total = assignmentSubmissionService.count(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
 
     /**
      * 学生提交作业
