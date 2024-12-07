@@ -1,6 +1,7 @@
 package homework.web.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import homework.web.annotation.PermissionAuthorize;
 import homework.web.entity.dto.StudyNoteQuery;
 import homework.web.entity.po.Course;
 import homework.web.entity.po.StudyNote;
@@ -47,6 +48,18 @@ public class StudyNoteController {
     public CommonResult<ListResult<StudyNoteVO>> getStudyNotes(@RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer pageSize,
             StudyNoteQuery param) {
+        List<StudyNoteVO> list = studyNoteService.queryAll(current, pageSize, param);
+        int total = studyNoteService.count(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
+    @Operation(summary = "获取我的学习笔记列表")
+    @GetMapping("/list-self")
+    @PermissionAuthorize
+    public CommonResult<ListResult<StudyNoteVO>> getMyStudyNotes(@RequestParam(defaultValue = "1") Integer current,
+                                                               @RequestParam(defaultValue = "10") Integer pageSize,
+                                                               StudyNoteQuery param) {
+        param.setStudentId(AuthUtils.getCurrentUserId());
         List<StudyNoteVO> list = studyNoteService.queryAll(current, pageSize, param);
         int total = studyNoteService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
