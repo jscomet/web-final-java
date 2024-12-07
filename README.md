@@ -11,7 +11,7 @@
 
 ### 接口文档
 项目的接口文档可以通过以下链接访问：
-[接口文档](https://app.apifox.com/project/5509335)
+[接口文档](https://app.apifox.com/main/teams/3100106)
 
 ### 快速生成 CRUD 代码
 项目使用 EasyCode 插件来快速生成 CRUD 代码。使用方法如下：

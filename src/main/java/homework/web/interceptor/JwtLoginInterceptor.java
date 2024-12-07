@@ -3,15 +3,18 @@ package homework.web.interceptor;
 import homework.web.constant.JwtClaimsConstant;
 import homework.web.entity.po.Role;
 import homework.web.entity.vo.UserVO;
+import homework.web.exception.HttpErrorException;
 import homework.web.property.AppProperty;
 import homework.web.service.UserService;
 import homework.web.util.AuthUtils;
 import homework.web.util.JwtUtils;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -55,7 +58,9 @@ public class JwtLoginInterceptor implements HandlerInterceptor {
             Claims payload = null;
             try {
                 payload = JwtUtils.parseJWT(appProperty.getJwt().getSecretKey(), token);
-            } catch (Exception e) {
+            } catch (ExpiredJwtException e) {
+                log.error("令牌已过期", e);
+            }catch (Exception e){
                 log.error("解析jwt异常", e);
             }
             //2. 根据userId 设置当前用户
