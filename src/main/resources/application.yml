@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   application:
     name: home-web-java
   datasource:
