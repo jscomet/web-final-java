@@ -58,5 +58,6 @@ public interface TestRecordService extends IService<TestRecord> {
      * @return 是否提交成功
      */
     boolean commit(TestRecordCommitParam answer);
+
 }
 

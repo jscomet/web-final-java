@@ -46,6 +46,9 @@
             <if test="completeTime != null">
                 and `complete_time` = #{completeTime}
             </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
         </where>
     </sql>
 

@@ -91,7 +91,6 @@ public class TestRecordController {
     @Operation(summary = "学生提交考试答案")
     @PostMapping("/submit")
     public CommonResult<Boolean> submitTestRecord(@RequestBody TestRecordCommitParam answer) {
-
         return testRecordService.commit(answer) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 }

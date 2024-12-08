@@ -91,5 +91,11 @@ public class TestRecord implements Serializable {
     @TableField(value = "complete_time")
     private LocalDateTime completeTime;
 
+    /**
+     * 课程标号
+     */
+    @Schema(description = "课程标号")
+    @TableField(value = "course_id")
+    private Long courseId;
 
 }
