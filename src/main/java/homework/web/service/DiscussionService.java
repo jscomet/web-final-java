@@ -33,13 +33,6 @@ public interface DiscussionService extends IService<Discussion> {
      */
     List<DiscussionVO> queryAll(int current, int pageSize, DiscussionQuery param);
 
-    /**
-     * 将讨论区列表转换为树形结构
-     *
-     * @param list 讨论区列表
-     * @return 树形结构
-     */
-    List<DiscussionVO> convertToTree(List<DiscussionVO> list);
 
     /**
      * 通过实体作为筛选条件计数
@@ -48,5 +41,12 @@ public interface DiscussionService extends IService<Discussion> {
      * @return 数量
      */
     int count(DiscussionQuery param);
+    /**
+     * 通过ID删除数据
+     *
+     * @param discussionId 主键
+     * @return 是否成功
+     */
+    boolean removeById(Long discussionId);
 }
 

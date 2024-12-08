@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="homework.web.dao.DiscussionReplyDao">
+
+
+    <resultMap id="DiscussionReplyMap" type="homework.web.entity.po.DiscussionReply">
+        <result property="replyId" column="reply_id" jdbcType="INTEGER"/>
+        <result property="discussionId" column="discussion_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="likeCount" column="like_count" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <resultMap id="DiscussionBaseReplyVOMap" type="homework.web.entity.vo.DiscussionBaseReplyVO" extends="DiscussionReplyMap" autoMapping="true"/>
+
+    <!--查询单个-->
+    <select id="queryBaseById" resultMap="DiscussionBaseReplyVOMap">
+        select *
+        from `discussion_reply`
+        where `reply_id` = #{replyId}
+    </select>
+
+     <!--筛选条件-->
+   <sql id="queryCondition">
+        <where>
+            <if test="replyId != null">
+                and `reply_id` = #{replyId}
+            </if>
+            <if test="discussionId != null">
+                and `discussion_id` = #{discussionId}
+            </if>
+            <if test="userId != null">
+                and `user_id` = #{userId}
+            </if>
+            <if test="content != null and content != ''">
+                and `content` = #{content}
+            </if>
+            <if test="parentId != null">
+                and `parent_id` = #{parentId}
+            </if>
+            <if test="likeCount != null">
+                and `like_count` = #{likeCount}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+        </where>
+    </sql>
+
+    <!--查询指定行数据-->
+    <select id="queryAllBase" resultMap="DiscussionBaseReplyVOMap">
+        select * ,
+               (select count(1) from discussion_reply c where c.parent_id= p.reply_id )  as replay_count
+        from `discussion_reply` p
+        <include refid="queryCondition"/>
+        <choose>
+            <when test="sorter != null and sorter.column != null and sorter.mode != null">
+                order by  ${sorter.column} ${sorter.mode} ,reply_id
+            </when>
+            <otherwise>
+                order by create_time desc,reply_id
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--统计总行数-->
+    <select id="countBase" resultType="java.lang.Integer">
+        select count(1)
+        from `discussion_reply`
+        <include refid="queryCondition"/>
+    </select>
+
+
+    <!-- 批量插入 -->
+    <insert id="insertBatch" keyProperty="replyId" useGeneratedKeys="true">
+        insert into discussion_reply(discussion_id,user_id,content,parent_id,like_count,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.discussionId},#{entity.userId},#{entity.content},#{entity.parentId},#{entity.likeCount},#{entity.createTime})
+        </foreach>
+    </insert>
+    <!-- 批量插入或按主键更新 -->
+    <insert id="insertOrUpdateBatch" keyProperty="replyId" useGeneratedKeys="true">
+        insert into discussion_reply(discussion_id,user_id,content,parent_id,like_count,create_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.discussionId},#{entity.userId},#{entity.content},#{entity.parentId},#{entity.likeCount},#{entity.createTime})
+        </foreach>
+        on duplicate key update
+           discussion_id = values(discussion_id) ,
+           user_id = values(user_id) ,
+           content = values(content) ,
+           parent_id = values(parent_id) ,
+           like_count = values(like_count) ,
+           create_time = values(create_time)     
+    </insert>
+
+</mapper>
+

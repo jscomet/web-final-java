@@ -37,11 +37,18 @@ public class Discussion implements Serializable {
     private Long courseId;
 
     /**
-     * 用户ID
+     * 创建人id
      */
-    @Schema(description = "用户ID")    
+    @Schema(description = "创建人id")
     @TableField(value = "user_id")
     private Long userId;
+
+    /**
+     * 标题
+     */
+    @Schema(description = "标题")
+    @TableField(value = "title")
+    private String title;
 
     /**
      * 讨论内容
@@ -49,13 +56,6 @@ public class Discussion implements Serializable {
     @Schema(description = "讨论内容")    
     @TableField(value = "content")
     private String content;
-
-    /**
-     * 父评论ID
-     */
-    @Schema(description = "父评论ID")    
-    @TableField(value = "parent_id")
-    private Long parentId;
 
     /**
      * 创建时间
