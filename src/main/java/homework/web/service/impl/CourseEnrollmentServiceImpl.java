@@ -50,7 +50,7 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
 
     @Override
     public List<CourseEnrollmentVO> queryAll(int current, int pageSize, CourseEnrollmentQuery param) {
-        if(current>0 && pageSize>0) {
+        if (current >= 0 && pageSize >= 0) {
             PageHelper.startPage(current, pageSize);
         }
         List<CourseEnrollmentVO> list = courseEnrollmentDao.queryAll(param);
@@ -67,11 +67,11 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
         if (vo == null) {
             return;
         }
-        if(vo.getCourseId() != null) {
+        if (vo.getCourseId() != null) {
             CourseVO course = courseService.queryById(vo.getCourseId());
             vo.setCourse(course);
         }
-        if(vo.getStudentId() != null) {
+        if (vo.getStudentId() != null) {
             UserVO student = userService.queryById(vo.getStudentId());
             userService.desensitize(student);
             vo.setStudent(student);
@@ -94,14 +94,14 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
         CourseEnrollment insertParam = new CourseEnrollment();
         insertParam.setCourseId(courseId);
         insertParam.setStudentId(studentId);
-         this.save(insertParam);
+        this.save(insertParam);
 
-         // 更新课程人数
+        // 更新课程人数
         courseService.lambdaUpdate()
                 .eq(Course::getCourseId, courseId)
                 .set(Course::getStudentCount, course.getStudentCount() + 1)
                 .update();
-         return true;
+        return true;
     }
 
     @Override
@@ -110,11 +110,11 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
         // 查询课程注册信息
         CourseEnrollment courseEnrollment = this.queryById(id);
         AssertUtils.notNull(courseEnrollment, HttpStatus.NOT_FOUND, "课程注册信息不存在");
-        AssertUtils.isTrue(Objects.equals(AuthUtils.getCurrentUserId(), courseEnrollment.getStudentId()), HttpStatus.FORBIDDEN,"无权限操作");
+        AssertUtils.isTrue(Objects.equals(AuthUtils.getCurrentUserId(), courseEnrollment.getStudentId()), HttpStatus.FORBIDDEN, "无权限操作");
 
         // 课程状态异常
         AssertUtils.isTrue(
-                List.of(CourseEnrollment.Status.UNSTART,CourseEnrollment.Status.ONGOING).contains(courseEnrollment.getStatus())
+                List.of(CourseEnrollment.Status.UNSTART, CourseEnrollment.Status.ONGOING).contains(courseEnrollment.getStatus())
                 , HttpStatus.BAD_REQUEST, "已完成或以退出的课程不能退课");
 
         //更新课程状态

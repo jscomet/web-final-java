@@ -1,13 +1,10 @@
 package homework.web.entity.po;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -26,12 +23,10 @@ public class TestRecord implements Serializable {
     @Serial
     private static final long serialVersionUID = -63792845478545225L;
 
-    @Getter
-    public enum Status {
+    public enum Status implements IEnum<Integer> {
         UNFINISHED(0),
         FINISHED(1);
 
-        @EnumValue
         @JsonValue
         private final int value;
 
@@ -39,6 +34,11 @@ public class TestRecord implements Serializable {
             this.value = value;
         }
 
+
+        @Override
+        public Integer getValue() {
+            return value;
+        }
     }
 
     /**

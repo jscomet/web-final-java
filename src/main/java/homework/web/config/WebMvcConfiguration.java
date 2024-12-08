@@ -6,6 +6,7 @@ import homework.web.json.JacksonObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -24,6 +25,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     private JwtLoginInterceptor jwtLoginInterceptor;
     @Resource
     private PermissionAuthorizeInterceptor permissionAuthorizeInterceptor;
+    @Resource
+    private EnumConvertFactory enumConvertFactory;
 
     /**
      * 注册自定义拦截器
@@ -64,6 +67,17 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         //将自己的消息转化器加入容器中
         converters.add(0, converter);
     }
+
+    /**
+     * 注册自定义枚举类型转换器
+     * @param registry
+     */
+    @Override
+    protected void addFormatters(FormatterRegistry registry) {
+        log.info("注册自定义枚举类型转换器...");
+        registry.addConverterFactory(enumConvertFactory);
+    }
+
 
 
 }

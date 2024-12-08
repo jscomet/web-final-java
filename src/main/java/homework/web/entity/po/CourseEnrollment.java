@@ -1,13 +1,11 @@
 package homework.web.entity.po;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -25,8 +23,7 @@ public class CourseEnrollment implements Serializable {
     @Serial
     private static final long serialVersionUID = -56766149911116332L;
 
-    @Getter
-    public enum Status {
+    public enum Status implements IEnum<Integer> {
         /**
          * 未开始
          */
@@ -43,9 +40,14 @@ public class CourseEnrollment implements Serializable {
          * 已退出
          */
         QUIT(3);
-        @EnumValue
-        @JsonValue
+
         private final int value;
+
+        @Override
+        @JsonValue
+        public Integer getValue() {
+            return value;
+        }
 
         Status(int value) {
             this.value = value;

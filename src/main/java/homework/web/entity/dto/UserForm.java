@@ -74,6 +74,9 @@ public class UserForm implements java.io.Serializable {
     @Null(groups = UpdateGroup.class,message = "不能修改用户密码")
     private String password;
 
+    @Schema(description = "学院/部门")
+    private String department;
+
     @Schema(description = "管理员有效！！！用户角色id")
     private List<Integer> roleIds;
 }

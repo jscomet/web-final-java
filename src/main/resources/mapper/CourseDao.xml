@@ -9,6 +9,7 @@
         <result property="description" column="description" jdbcType="VARCHAR"/>
         <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
         <result property="teacherId" column="teacher_id" jdbcType="INTEGER"/>
+        <result property="teacherName" column="teacher_name" jdbcType="VARCHAR"/>
         <result property="coverImage" column="cover_image" jdbcType="VARCHAR"/>
         <result property="isRecommended" column="is_recommended" jdbcType="BOOLEAN"/>
         <result property="status" column="status" jdbcType="INTEGER"/>
@@ -47,6 +48,9 @@
             </if>
             <if test="teacherId != null">
                 and `teacher_id` = #{teacherId}
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and `teacher_name` = #{teacherName}
             </if>
             <if test="coverImage != null and coverImage != ''">
                 and `cover_image` = #{coverImage}
@@ -106,24 +110,25 @@
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="courseId" useGeneratedKeys="true">
-        insert into course(title,description,category_id,teacher_id,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
+        insert into course(title,description,category_id,teacher_id,teacher_name,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
+        (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.teacherName},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="courseId" useGeneratedKeys="true">
-        insert into course(title,description,category_id,teacher_id,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
+        insert into course(title,description,category_id,teacher_id,teacher_name,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
+            (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.teacherName},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
         </foreach>
         on duplicate key update
            title = values(title) ,
            description = values(description) ,
            category_id = values(category_id) ,
            teacher_id = values(teacher_id) ,
+           teacher_name = values(teacher_name) ,
            cover_image = values(cover_image) ,
            is_recommended = values(is_recommended) ,
            status = values(status) ,
