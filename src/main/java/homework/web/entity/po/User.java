@@ -198,4 +198,12 @@ public class User implements Serializable {
     private LocalDateTime updateTime;
 
 
+    /**
+     * 学院/部门
+     */
+    @Schema(description = "学院/部门")
+    @TableField(value = "department")
+    private String department;
+
+
 }

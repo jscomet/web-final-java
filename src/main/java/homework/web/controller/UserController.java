@@ -56,24 +56,32 @@ public class UserController {
 
     @Operation(summary = "用户学生注册")
     @PostMapping("/register-for-student")
-    public CommonResult<UserAuthVO> registerForStudent(@RequestBody @Validated(AddGroup.class) UserStudentRegisterParam param) {
-        AssertUtils.isTrue(systemConfigService.isEnableSelfRegister(),HttpStatus.BAD_REQUEST,"学生注册未开放");
-        AssertUtils.notEmpty(param.getPassword(),HttpStatus.BAD_REQUEST,"未设置密码");
-        String token=userService.registerForStudent(param);
-        UserAuthVO authVO=new UserAuthVO();
+    public CommonResult<UserAuthVO> registerForStudent(@RequestBody @Validated UserStudentRegisterParam param) {
+        AssertUtils.isTrue(systemConfigService.isEnableSelfRegister(), HttpStatus.BAD_REQUEST, "学生注册未开放");
+        AssertUtils.notEmpty(param.getPassword(), HttpStatus.BAD_REQUEST, "未设置密码");
+        String token = userService.registerForStudent(param);
+        UserAuthVO authVO = new UserAuthVO();
         authVO.setToken(token);
         return CommonResult.success(authVO);
     }
 
     @Operation(summary = "老师用户注册")
     @PostMapping("/register-for-teacher")
-    public CommonResult<UserAuthVO> registerForTeacher(@RequestBody @Validated(AddGroup.class) UserTeacherRegisterParam param) {
-        AssertUtils.isTrue(systemConfigService.isEnableSelfRegister(),HttpStatus.BAD_REQUEST,"老师注册未开放");
-        AssertUtils.notEmpty(param.getPassword(),HttpStatus.BAD_REQUEST,"未设置密码");
-        String token=userService.registerForTeacher(param);
-        UserAuthVO authVO=new UserAuthVO();
+    public CommonResult<UserAuthVO> registerForTeacher(@RequestBody @Validated UserTeacherRegisterParam param) {
+        AssertUtils.isTrue(systemConfigService.isEnableSelfRegister(), HttpStatus.BAD_REQUEST, "老师注册未开放");
+        AssertUtils.notEmpty(param.getPassword(), HttpStatus.BAD_REQUEST, "未设置密码");
+        String token = userService.registerForTeacher(param);
+        UserAuthVO authVO = new UserAuthVO();
         authVO.setToken(token);
         return CommonResult.success(authVO);
+    }
+
+    @Operation(summary = "忘记密码")
+    @PostMapping("/forget-password")
+    public CommonResult<Boolean> forgetPassword(@RequestBody @Validated UserTeacherRegisterParam param) {
+        AssertUtils.notEmpty(param.getPassword(), HttpStatus.BAD_REQUEST, "未设置密码");
+        boolean t = userService.forgetPassword(param);
+        return t ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST, "用户名或学号错误");
     }
 
 
@@ -88,7 +96,8 @@ public class UserController {
     @Operation(summary = "修改密码")
     @PutMapping("/update-password")
     @PermissionAuthorize
-    public CommonResult<Boolean> updatePassword(@RequestBody @Validated UserPasswordParam param) {;
+    public CommonResult<Boolean> updatePassword(@RequestBody @Validated UserPasswordParam param) {
+        ;
         param.setUserId(AuthUtils.getCurrentUserId());
         return userService.updatePassword(param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }

@@ -101,10 +101,8 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Override
     public String loginByPassword(UserLoginPasswordParam param) {
         //查询用户
-        User user = this.lambdaQuery().eq(User::getUsername, param.getUsername()).one();
-        if (user == null) {
-            user = this.lambdaQuery().eq(User::getStudentId, param.getUsername()).one();
-        }
+
+        User user = this.lambdaQuery().eq(User::getStudentId, param.getStudentId()).one();
         AssertUtils.notNull(user, HttpStatus.NOT_FOUND, "用户不存在");
 
         //验证密码
@@ -277,12 +275,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String registerForStudent(UserStudentRegisterParam param) {
-        String studentId=param.getStudentId();
-        String password=param.getPassword();
+        String studentId = param.getStudentId();
+        String password = param.getPassword();
+        String username = param.getUsername();
         //补充学生信息
         User user = new User();
         user.setStudentId(studentId);
-        user.setUsername(studentId);
+        user.setUsername(username);
+        user.setNickname(username);
         PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(password);
         user.setPassword(passwordAndSalt.getPassword());
         user.setSalt(passwordAndSalt.getSalt());
@@ -302,11 +302,14 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String registerForTeacher(UserTeacherRegisterParam param) {
-        String username=param.getUsername();
-        String password=param.getPassword();
+        String studentId = param.getStudentId();
+        String username = param.getUsername();
+        String password = param.getPassword();
         //补充老师信息
         User user = new User();
+        user.setStudentId(studentId);
         user.setUsername(username);
+        user.setNickname(username);
         PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(password);
         user.setPassword(passwordAndSalt.getPassword());
         user.setSalt(passwordAndSalt.getSalt());
@@ -319,6 +322,21 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
         userRoleService.save(userRole);
         // 根据userId生成token
         return JwtUtils.createJWTByUserId(user.getUserId());
+    }
+
+    @Override
+    public boolean forgetPassword(UserTeacherRegisterParam param) {
+        User user = this.lambdaQuery().eq(User::getStudentId, param.getStudentId())
+                .eq(User::getUsername, param.getUsername()).one();
+        AssertUtils.notNull(user, HttpStatus.NOT_FOUND, "用户学工号或用户错误");
+
+        String password = param.getPassword();
+        PasswordUtils.PasswordAndSalt passwordAndSalt = PasswordUtils.createPassword(password);
+        LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(User::getUserId, user.getUserId())
+                .set(User::getPassword, passwordAndSalt.getPassword())
+                .set(User::getSalt, passwordAndSalt.getSalt());
+        return this.update(updateWrapper);
     }
 }
 

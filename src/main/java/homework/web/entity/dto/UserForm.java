@@ -38,8 +38,6 @@ public class UserForm implements java.io.Serializable {
      * 用户名
      */
     @Schema(description = "用户名")
-    @NotBlank(groups = AddGroup.class, message = "用户名不能为空")
-    @Null(groups = UpdateGroup.class, message = "用户名不可修改")
     private String username;
     /**
      * 邮箱

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import homework.web.entity.dto.*;
 import homework.web.entity.po.User;
 import homework.web.entity.vo.UserVO;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -126,5 +125,12 @@ public interface UserService extends IService<User> {
      * @return token
      */
     String registerForTeacher(UserTeacherRegisterParam param);
+    /**
+     * 通过表单参数忘记密码
+     *
+     * @param param 表单参数
+     * @return 是否成功
+     */
+    boolean forgetPassword(UserTeacherRegisterParam param);
 }
 

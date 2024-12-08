@@ -65,6 +65,9 @@
             <if test="gender != null">
                 and `gender` = #{gender}
             </if>
+            <if test="department != null and department != ''">
+                and `department` = #{department}
+            </if>
             <if test="roleIds != null">
                 and `user_id` in
                 (select ur.`user_id` from `user_role` ur where ur.`role_id` in
@@ -93,18 +96,18 @@
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="userId" useGeneratedKeys="true">
-        insert into user(username,password,salt,email,student_id,nickname,avatar_url,signature,status,login_attempts,last_login_time,last_login_ip,create_time,update_time,gender)
+        insert into user(username,password,salt,email,student_id,nickname,avatar_url,signature,status,login_attempts,last_login_time,last_login_ip,create_time,update_time,gender,department)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.username},#{entity.password},#{entity.salt},#{entity.email},#{entity.studentId},#{entity.nickname},#{entity.avatarUrl},#{entity.signature},#{entity.status},#{entity.loginAttempts},#{entity.lastLoginTime},#{entity.lastLoginIp},#{entity.createTime},#{entity.updateTime},#{entity.gender})
+        (#{entity.username},#{entity.password},#{entity.salt},#{entity.email},#{entity.studentId},#{entity.nickname},#{entity.avatarUrl},#{entity.signature},#{entity.status},#{entity.loginAttempts},#{entity.lastLoginTime},#{entity.lastLoginIp},#{entity.createTime},#{entity.updateTime},#{entity.gender},#{entity.department})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="userId" useGeneratedKeys="true">
-        insert into user(username,password,salt,email,student_id,nickname,avatar_url,signature,status,login_attempts,last_login_time,last_login_ip,create_time,update_time,gender)
+        insert into user(username,password,salt,email,student_id,nickname,avatar_url,signature,status,login_attempts,last_login_time,last_login_ip,create_time,update_time,gender,department)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.username},#{entity.password},#{entity.salt},#{entity.email},#{entity.studentId},#{entity.nickname},#{entity.avatarUrl},#{entity.signature},#{entity.status},#{entity.loginAttempts},#{entity.lastLoginTime},#{entity.lastLoginIp},#{entity.createTime},#{entity.updateTime},#{entity.gender})
+            (#{entity.username},#{entity.password},#{entity.salt},#{entity.email},#{entity.studentId},#{entity.nickname},#{entity.avatarUrl},#{entity.signature},#{entity.status},#{entity.loginAttempts},#{entity.lastLoginTime},#{entity.lastLoginIp},#{entity.createTime},#{entity.updateTime},#{entity.gender},#{entity.department})
         </foreach>
         on duplicate key update
            username = values(username) ,
@@ -121,7 +124,8 @@
            last_login_ip = values(last_login_ip) ,
            create_time = values(create_time) ,
            update_time = values(update_time) ,
-           gender = values(gender)
+           gender = values(gender) ,
+           department = values(department)
     </insert>
 
 </mapper>

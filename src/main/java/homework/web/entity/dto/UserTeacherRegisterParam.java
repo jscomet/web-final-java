@@ -16,6 +16,9 @@ import java.io.Serial;
 public class UserTeacherRegisterParam implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+    @Schema(description = "教职工号")
+    @NotBlank(message = "教职工不能为空")
+    private String studentId;
     @Schema(description = "用户名")
     @NotBlank(message = "用户名不能为空")
     private String username;

@@ -17,11 +17,11 @@ public class UserLoginPasswordParam implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
     /**
-     * 用户名
+     * 学号/教职工号
      */
-    @Schema(description = "用户名")
-    @NotBlank(message = "用户名不能为空")
-    private String username;
+    @Schema(description = "学号/教职工号")
+    @NotBlank(message = "学号/教职工号不能为空")
+    private String studentId;
     /**
      * 密码
      */
