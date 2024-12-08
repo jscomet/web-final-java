@@ -41,5 +41,13 @@ public interface CourseMaterialService extends IService<CourseMaterial> {
      */
     int count(CourseMaterialQuery param);
 
+    /**
+     * 通过课程ID查询课件资料
+     *
+     * @param courseId 课程ID
+     * @return 课件资料列表
+     */
+    List<CourseMaterial> queryByCourseId(Long courseId);
+
 }
 

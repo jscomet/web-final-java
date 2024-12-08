@@ -63,4 +63,11 @@ public class CourseMaterialController {
     public CommonResult<Boolean> deleteCourseMaterial(@PathVariable Long id) {
         return courseMaterialService.removeById(id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
+
+    @Operation(summary = "获取指定课程的课件资料")
+    @GetMapping("/course/{courseId}")
+    public CommonResult<List<CourseMaterial>> getCourseMaterialsByCourseId(@PathVariable Long courseId) {
+        List<CourseMaterial> materials = courseMaterialService.queryByCourseId(courseId);
+        return materials != null && !materials.isEmpty() ? CommonResult.success(materials) : CommonResult.error(HttpStatus.NOT_FOUND);
+    }
 }
