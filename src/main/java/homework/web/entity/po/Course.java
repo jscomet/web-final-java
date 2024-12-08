@@ -89,6 +89,13 @@ public class Course implements Serializable {
     private Long teacherId;
 
     /**
+     * 讲师名称
+     */
+    @Schema(description = "讲师名称")
+    @TableField(value = "teacher_name")
+    private String teacherName;
+
+    /**
      * 封面图片URL
      */
     @Schema(description = "封面图片URL")
