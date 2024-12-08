@@ -48,6 +48,13 @@ public class StudyNote implements Serializable {
     private Long studentId;
 
     /**
+     * 标题
+     */
+    @Schema(description = "标题")
+    @TableField(value = "title")
+    private String title;
+
+    /**
      * 笔记内容
      */
     @Schema(description = "笔记内容")    

@@ -7,6 +7,7 @@
         <result property="noteId" column="note_id" jdbcType="INTEGER"/>
         <result property="courseId" column="course_id" jdbcType="INTEGER"/>
         <result property="studentId" column="student_id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -31,6 +32,9 @@
             </if>
             <if test="studentId != null">
                 and `student_id` = #{studentId}
+            </if>
+            <if test="title != null and title != ''">
+                and `title` = #{title}
             </if>
             <if test="content != null and content != ''">
                 and `content` = #{content}
@@ -58,22 +62,23 @@
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="noteId" useGeneratedKeys="true">
-        insert into study_note(course_id,student_id,content,create_time)
+        insert into study_note(course_id,student_id,title,content,create_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.courseId},#{entity.studentId},#{entity.content},#{entity.createTime})
+        (#{entity.courseId},#{entity.studentId},#{entity.title},#{entity.content},#{entity.createTime})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="noteId" useGeneratedKeys="true">
-        insert into study_note(course_id,student_id,content,create_time)
+        insert into study_note(course_id,student_id,title,content,create_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.courseId},#{entity.studentId},#{entity.content},#{entity.createTime})
+            (#{entity.courseId},#{entity.studentId},#{entity.title},#{entity.content},#{entity.createTime})
         </foreach>
         on duplicate key update
            course_id = values(course_id) ,
            student_id = values(student_id) ,
+           title = values(title) ,
            content = values(content) ,
            create_time = values(create_time)     
     </insert>
