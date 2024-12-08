@@ -1,15 +1,12 @@
 package homework.web.entity.po;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonValue;
 import homework.web.config.valid.AddGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Getter;
 
 import java.io.Serial;
@@ -26,8 +23,8 @@ import java.time.LocalDateTime;
 public class AssignmentSubmission implements Serializable {
     @Serial
     private static final long serialVersionUID = -66817178147424480L;
-    @Getter
-    public enum Status {
+
+    public enum Status implements IEnum<Integer> {
         /**
          * 未提交
          */
@@ -41,12 +38,16 @@ public class AssignmentSubmission implements Serializable {
          */
         CORRECTED(2);
 
-        @EnumValue
         @JsonValue
         private final int value;
 
         private Status(int value) {
             this.value = value;
+        }
+
+        @Override
+        public Integer getValue() {
+            return value;
         }
     }
     /**
