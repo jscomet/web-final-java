@@ -6,11 +6,13 @@ import homework.web.entity.dto.TestRecordQuery;
 import homework.web.entity.po.TestRecord;
 import homework.web.entity.vo.TestRecordVO;
 import homework.web.service.TestRecordService;
+import homework.web.service.impl.SelfTestServiceImpl;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +31,8 @@ import java.util.List;
 public class TestRecordController {
     @Resource
     private TestRecordService testRecordService;
+    @Autowired
+    private SelfTestServiceImpl selfTestService;
 
     @Operation(summary = "获取指定考试记录信息")
     @GetMapping("/info/{id}")
@@ -54,6 +58,10 @@ public class TestRecordController {
                                                                  TestRecordQuery param) {
         param.setStudentId(AuthUtils.getCurrentUserId());
         List<TestRecordVO> list = testRecordService.queryAll(current, pageSize, param);
+        //循环list，添加考试名称
+        for (TestRecordVO testRecordVO : list) {
+            testRecordVO.setTitle(selfTestService.queryById(testRecordVO.getTestId()).getTitle());
+        }
         int total = testRecordService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
@@ -84,6 +92,6 @@ public class TestRecordController {
     @PostMapping("/submit")
     public CommonResult<Boolean> submitTestRecord(@RequestBody TestRecordCommitParam answer) {
 
-        return testRecordService.commit( answer) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+        return testRecordService.commit(answer) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 }

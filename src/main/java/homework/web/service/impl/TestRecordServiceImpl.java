@@ -1,18 +1,29 @@
 package homework.web.service.impl;
+
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
+import homework.web.context.CurrentUserContext;
 import homework.web.dao.TestRecordDao;
 import homework.web.entity.dto.TestRecordCommitParam;
+import homework.web.entity.po.QuestionBank;
 import homework.web.entity.po.TestRecord;
+import homework.web.entity.vo.SelfTestVO;
+import homework.web.entity.vo.UserVO;
 import homework.web.service.CourseEnrollmentService;
+import homework.web.service.QuestionBankService;
 import homework.web.service.TestRecordService;
 import homework.web.entity.dto.TestRecordQuery;
 import homework.web.entity.vo.TestRecordVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.Context;
+import java.time.LocalDateTime;
 import java.util.List;
+
 /**
  * 考试记录(TestRecord)表服务实现类
  *
@@ -25,6 +36,10 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
     private TestRecordDao testRecordDao;
     @Resource
     private CourseEnrollmentService courseEnrollmentService;
+    @Autowired
+    private QuestionBankService questionBankService;
+    @Autowired
+    private SelfTestServiceImpl selfTestService;
 
     @Override
     public TestRecordVO queryById(Long recordId) {
@@ -60,11 +75,41 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
         }).toList();
         return this.saveBatch(records);
     }
-    //TODO 提交答案，计算分数
-    @Override
-    public boolean commit(TestRecordCommitParam answer) {
 
-        return false;
+    @Override
+    public boolean commit(TestRecordCommitParam trCommit) {
+        // 获得试卷id对应的试卷
+        SelfTestVO selfTestVO = selfTestService.queryById(trCommit.getTestId());
+        if (selfTestVO == null) {
+            return false;
+        }
+        // 获得试卷id对应的试卷中的题目数目
+        int questionCount = selfTestVO.getQuestions().size();
+        int lose = 0;
+        int win = 0;
+        // 逐个比较selfTestVO中question和trCommit中的questionId相同答案是否相同
+        for (TestRecordCommitParam.Answer answer : trCommit.getAnswers()) {
+            // Fetch the question from the database using questionId
+            QuestionBank question = questionBankService.getById(answer.getQuestionId());
+            if (question == null || !question.getCorrectAnswer().equals(answer.getAnswer())) {
+                lose++;
+                continue;
+            }
+            win++;
+        }
+        // 构建数据写入
+        TestRecord testRecord = new TestRecord();
+        testRecord.setTestId(trCommit.getTestId());
+        float i = (float) (win * 100.0 / questionCount);
+        testRecord.setScore(i);
+        testRecord.setStatus(TestRecord.Status.FINISHED);
+        // 把trCommit中的答案转变成json写入
+        testRecord.setAnswers(JSON.toJSONString(trCommit.getAnswers()));
+        testRecord.setCompleteTime(LocalDateTime.now());
+        // 从上下文中获取当前用户id
+        UserVO currentUser = CurrentUserContext.getCurrentUser();
+        testRecord.setStudentId(currentUser.getUserId());
+        return this.save(testRecord);
     }
 }
 

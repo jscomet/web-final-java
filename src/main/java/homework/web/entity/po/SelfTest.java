@@ -1,5 +1,6 @@
 package homework.web.entity.po;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import homework.web.config.valid.AddGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -66,6 +67,7 @@ public class SelfTest implements Serializable {
      */
     @Schema(description = "创建时间")    
     @TableField(value = "create_time")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createTime;
 
 

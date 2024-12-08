@@ -13,4 +13,5 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class TestRecordVO extends TestRecord {
+    String title;
 }
