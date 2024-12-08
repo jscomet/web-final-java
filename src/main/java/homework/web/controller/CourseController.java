@@ -4,6 +4,7 @@ import homework.web.config.valid.QueryGroup;
 import homework.web.entity.dto.AssignmentQuery;
 import homework.web.entity.dto.CourseQuery;
 import homework.web.entity.po.Course;
+import homework.web.entity.po.User;
 import homework.web.entity.vo.AssignmentVO;
 import homework.web.entity.vo.CourseVO;
 import homework.web.entity.vo.UserVO;
@@ -47,8 +48,8 @@ public class CourseController {
     @Operation(summary = "获取课程信息列表")
     @GetMapping("/list")
     public CommonResult<ListResult<CourseVO>> getCourses(@RequestParam(defaultValue = "1") Integer current,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @Validated(QueryGroup.class) CourseQuery param) {
+                                                         @RequestParam(defaultValue = "10") Integer pageSize,
+                                                         @Validated(QueryGroup.class) CourseQuery param) {
         List<CourseVO> list = courseService.queryAll(current, pageSize, param);
         int total = courseService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
@@ -74,14 +75,19 @@ public class CourseController {
     @Operation(summary = "添加课程信息")
     @PostMapping("/add")
     public CommonResult<Boolean> addCourse(@RequestBody Course param) {
+        Long teacherId = param.getTeacherId();
+        if (teacherId != null) {
+            User teacherVO = userService.getById(teacherId);
+            param.setTeacherName(teacherVO.getUsername());
+        }
         return courseService.save(param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
     @Operation(summary = "修改指定课程信息信息")
     @PutMapping("/update/{id}")
     public CommonResult<Boolean> updateCourse(@PathVariable Long id,
-            @RequestBody Course param) {
-            param.setCourseId(id);
+                                              @RequestBody Course param) {
+        param.setCourseId(id);
         return courseService.updateById(param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
