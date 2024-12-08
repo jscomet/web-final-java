@@ -95,7 +95,6 @@ public class SelfTestServiceImpl extends ServiceImpl<SelfTestDao, SelfTest> impl
                 testQuestionService.save(testQuestion);
             }
         }
-
         return true;
     }
 

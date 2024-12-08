@@ -2,8 +2,10 @@ package homework.web.controller;
 
 import homework.web.entity.dto.SelfTestCreateParam;
 import homework.web.entity.dto.SelfTestQuery;
+import homework.web.entity.po.QuestionBank;
 import homework.web.entity.po.SelfTest;
 import homework.web.entity.vo.SelfTestVO;
+import homework.web.service.QuestionBankService;
 import homework.web.service.SelfTestService;
 import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
@@ -29,6 +31,8 @@ import java.util.List;
 public class SelfTestController {
     @Resource
     private SelfTestService selfTestService;
+    @Resource
+    private QuestionBankService questionBankService;
 
     @Operation(summary = "获取指定自测试卷信息")
     @GetMapping("/info/{id}")
@@ -91,5 +95,18 @@ public class SelfTestController {
     public CommonResult<Long> generateSelfTest(@RequestBody SelfTest param) {
         param.setCreatorId(AuthUtils.getCurrentUserId());
         return CommonResult.success(selfTestService.generateSelfTest(param));
+    }
+
+    /**
+     * 获取该课程对应得题目
+     */
+    @Operation(summary = "获取该课程对应得题目")
+    @GetMapping("/getQuestion/{id}")
+    public CommonResult<List<QuestionBank>> getQuestion(@PathVariable int id) {
+        List<QuestionBank> questions = questionBankService.getQuestionIdsByCourseId(id);
+        if (questions != null && !questions.isEmpty()) {
+            return CommonResult.success(questions);
+        }
+        return CommonResult.error(HttpStatus.NOT_FOUND);
     }
 }

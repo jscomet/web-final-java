@@ -41,5 +41,6 @@ public interface QuestionBankService extends IService<QuestionBank> {
      */
     int count(QuestionBankQuery param);
 
+    List<QuestionBank> getQuestionIdsByCourseId(int id);
 }
 

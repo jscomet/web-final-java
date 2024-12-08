@@ -36,6 +36,13 @@ public class QuestionBank implements Serializable {
     private Long creatorId;
 
     /**
+     * 所属课程ID
+     */
+    @Schema(description = "所属课程ID")
+    @TableField(value = "course_id")
+    private Integer courseId;
+
+    /**
      * 题目类型：0-单选、1-多选、2-判断、3-填空、4-问答
      */
     @Schema(description = "题目类型：0-单选、1-多选、2-判断、3-填空、4-问答")    

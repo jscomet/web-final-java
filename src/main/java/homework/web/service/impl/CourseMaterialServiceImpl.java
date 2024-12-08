@@ -5,10 +5,10 @@ import homework.web.dao.CourseMaterialDao;
 import homework.web.entity.po.CourseMaterial;
 import homework.web.service.CourseMaterialService;
 import homework.web.entity.dto.CourseMaterialQuery;
-import homework.web.entity.po.CourseMaterial;
 import homework.web.entity.vo.CourseMaterialVO;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
 import java.util.List;
 /**
@@ -36,6 +36,12 @@ public class CourseMaterialServiceImpl extends ServiceImpl<CourseMaterialDao, Co
     @Override
     public int count(CourseMaterialQuery param) {
         return courseMaterialDao.count(param);
+    }
+
+    @Override
+    public List<CourseMaterial> queryByCourseId(Long courseId) {
+      // 使用mp进行查询
+      return this.list(new LambdaQueryWrapper<CourseMaterial>().eq(CourseMaterial::getCourseId, courseId));
     }
 }
 
