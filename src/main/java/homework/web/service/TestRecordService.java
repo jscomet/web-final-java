@@ -59,5 +59,7 @@ public interface TestRecordService extends IService<TestRecord> {
      */
     boolean commit(TestRecordCommitParam answer);
 
+
+    TestRecord getTestRecordByTestIdAndStudentId(Long testId, Long studentId);
 }
 

@@ -44,5 +44,11 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankDao, Questi
 //        使用mybatis-plus的查询这个课程id的所有题目
         return questionBankDao.selectList(new QueryWrapper<QuestionBank>().eq("course_id", id));
     }
+
+    @Override
+    public List<QuestionBank> getQuestionsByTestId(Long testId) {
+        // 通过 MyBatis-Plus 的 Mapper 查询试卷的题目
+        return baseMapper.selectList(new QueryWrapper<QuestionBank>().eq("test_id", testId));
+    }
 }
 

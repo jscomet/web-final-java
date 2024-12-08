@@ -18,6 +18,14 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import homework.web.entity.po.TestRecord;
+
+import homework.web.service.TestRecordService;
+import homework.web.util.AIHelperUtils;
 
 /**
  * 自测试卷(SelfTest)表控制层
@@ -108,5 +116,83 @@ public class SelfTestController {
             return CommonResult.success(questions);
         }
         return CommonResult.error(HttpStatus.NOT_FOUND);
+    }
+
+
+    @Resource
+    private TestRecordService testRecordService;
+    private final ObjectMapper objectMapper = new ObjectMapper(); // 用于 JSON 解析
+    @Operation(summary = "自动评分自测试卷")
+    @PostMapping("/score/{testId}/{studentId}")
+    public CommonResult<Map<String, Object>> scoreSelfTest(@PathVariable Long testId, @PathVariable Long studentId) {
+        // 获取学生的测试记录
+        TestRecord testRecord = testRecordService.getTestRecordByTestIdAndStudentId(testId, studentId);
+        if (testRecord == null) {
+            return CommonResult.error(HttpStatus.NOT_FOUND, "未找到学生测试记录");
+        }
+
+        // 将 answers 字段解析为 Map
+        Map<String, String> answersMap;
+        try {
+            answersMap = objectMapper.readValue(testRecord.getAnswers(), Map.class);
+        } catch (Exception e) {
+            return CommonResult.error(HttpStatus.INTERNAL_SERVER_ERROR, "答案解析失败");
+        }
+
+        // 获取试卷中的所有题目
+        List<QuestionBank> questionBanks = questionBankService.getQuestionsByTestId(testId);
+
+        // 初始化总分
+        float totalScore = 0;
+        float maxScore = 0;
+
+        Map<String, Object> result = new HashMap<>();
+
+        // 遍历题目，逐一评分
+        for (QuestionBank question : questionBanks) {
+            String studentAnswer = answersMap.get(question.getQuestionId().toString());
+            float questionScore = 0;
+
+            switch (question.getType()) {
+                case 0: // 单选题
+                case 1: // 多选题
+                case 2: // 判断题
+                    if (studentAnswer != null && studentAnswer.equals(question.getCorrectAnswer())) {
+                        questionScore = 1;
+                    }
+                    break;
+
+                case 3: // 填空题
+                    if (studentAnswer != null && studentAnswer.equals(question.getCorrectAnswer())) {
+                        questionScore = 1;
+                    }
+                    break;
+
+                case 4: // 问答题
+                    // 调用 LLM 来评分并传递学生答案与正确答案
+                    String aiFeedback = AIHelperUtils.aiAnalyse("学生答案: " + studentAnswer + " 正确答案: " + question.getCorrectAnswer());
+
+                    // 记录AI的反馈
+                    result.put(question.getQuestionId().toString(), aiFeedback); // 存储每个问题的反馈
+
+                    // 这里可以根据反馈来决定是否给予分数
+                    if (aiFeedback.contains("正确")) {
+                        questionScore = 1; // 满分1分，如果AI判断为正确
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            // 累加分数
+            totalScore += questionScore;
+            maxScore += 1; // 假设每题满分1分
+        }
+
+        // 返回评分结果
+        result.put("totalScore", totalScore);
+        result.put("maxScore", maxScore);
+        return CommonResult.success(result);
     }
 }
