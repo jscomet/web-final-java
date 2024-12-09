@@ -50,6 +50,7 @@ public class TestRecordController {
         int total = testRecordService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
+
     @Operation(summary = "获取我的考试记录列表")
     @GetMapping("/list-self")
     @PermissionAuthorize

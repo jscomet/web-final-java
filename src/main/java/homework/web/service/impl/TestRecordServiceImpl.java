@@ -8,11 +8,10 @@ import homework.web.dao.TestRecordDao;
 import homework.web.entity.dto.TestRecordCommitParam;
 import homework.web.entity.po.QuestionBank;
 import homework.web.entity.po.TestRecord;
+import homework.web.entity.vo.CourseVO;
 import homework.web.entity.vo.SelfTestVO;
 import homework.web.entity.vo.UserVO;
-import homework.web.service.CourseEnrollmentService;
-import homework.web.service.QuestionBankService;
-import homework.web.service.TestRecordService;
+import homework.web.service.*;
 import homework.web.entity.dto.TestRecordQuery;
 import homework.web.entity.vo.TestRecordVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.naming.Context;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 考试记录(TestRecord)表服务实现类
@@ -39,17 +39,40 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
     @Autowired
     private QuestionBankService questionBankService;
     @Autowired
-    private SelfTestServiceImpl selfTestService;
+    private SelfTestService selfTestService;
+    @Resource
+    private CourseService courseService;
 
     @Override
     public TestRecordVO queryById(Long recordId) {
-        return testRecordDao.queryById(recordId);
+        TestRecordVO vo = testRecordDao.queryById(recordId);
+        fillVO(vo);
+        return vo;
     }
 
     @Override
     public List<TestRecordVO> queryAll(int current, int pageSize, TestRecordQuery param) {
-        PageHelper.startPage(current, pageSize);
-        return testRecordDao.queryAll(param);
+        if(current > 0 && pageSize > 0) {
+            PageHelper.startPage(current, pageSize);
+        }
+        List<TestRecordVO> list= testRecordDao.queryAll(param);
+        list.forEach(this::fillVO);
+        return list;
+    }
+
+    private void fillVO(TestRecordVO vo) {
+        if (vo == null) {
+            return;
+        }
+        if(vo.getTestId() != null) {
+            SelfTestVO selfTestVO = selfTestService.queryById(vo.getTestId());
+            vo.setTest(selfTestVO);
+            vo.setTitle(Optional.ofNullable(selfTestVO.getTitle()).orElseGet(()->""));
+        }
+        if(vo.getCourseId()!=null){
+            CourseVO courseVO = courseService.queryById(vo.getCourseId());
+            vo.setCourse(courseVO);
+        }
     }
 
     @Override
@@ -110,6 +133,11 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
         UserVO currentUser = CurrentUserContext.getCurrentUser();
         testRecord.setStudentId(currentUser.getUserId());
         return this.save(testRecord);
+    }
+
+    @Override
+    public TestRecord getTestRecordByTestIdAndStudentId(Long testId, Long studentId) {
+        return this.lambdaQuery().eq(TestRecord::getTestId, testId).eq(TestRecord::getStudentId, studentId).one();
     }
 }
 

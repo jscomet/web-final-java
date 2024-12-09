@@ -18,6 +18,8 @@ import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 自测试卷(SelfTest)表服务实现类
@@ -64,6 +66,13 @@ public class SelfTestServiceImpl extends ServiceImpl<SelfTestDao, SelfTest> impl
             if (questionIds != null && !questionIds.isEmpty()) {
                 List<QuestionBank> questionBanks = questionBankService.listByIds(questionIds);
                 vo.setQuestions(questionBanks);
+                //设置题目类型
+                vo.setQuestionTypes(questionBanks.stream().map(questionBank -> {
+                    return Optional.ofNullable(QuestionBank.Type.valueOf(questionBank.getType()))
+                            .map(QuestionBank.Type::getDesc).orElse(null);
+                }).filter(Objects::nonNull).distinct().toList());
+                //设置题目数量
+                vo.setQuestionCount(questionIds.size());
             }
         }
     }

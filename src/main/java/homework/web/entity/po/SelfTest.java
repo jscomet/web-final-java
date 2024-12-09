@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import homework.web.config.valid.AddGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import com.baomidou.mybatisplus.annotation.IdType;

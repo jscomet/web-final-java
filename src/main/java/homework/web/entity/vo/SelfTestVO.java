@@ -23,4 +23,10 @@ public class SelfTestVO extends SelfTest {
      */
     @Schema(description = "题目列表")
     private List<QuestionBank> questions;
+
+    @Schema(description = "题目类型")
+    private List<String> questionTypes;
+
+    @Schema(description = "题目数量")
+    private Integer questionCount;
 }
