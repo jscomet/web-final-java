@@ -129,6 +129,7 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
         // 把trCommit中的答案转变成json写入
         testRecord.setAnswers(JSON.toJSONString(trCommit.getAnswers()));
         testRecord.setCompleteTime(LocalDateTime.now());
+        testRecord.setCourseId(trCommit.getCourseId());
         // 从上下文中获取当前用户id
         UserVO currentUser = CurrentUserContext.getCurrentUser();
         testRecord.setStudentId(currentUser.getUserId());

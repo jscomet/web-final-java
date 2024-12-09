@@ -39,6 +39,21 @@ public class SelfTest implements Serializable {
     private Long creatorId;
 
     /**
+     * 试卷所属课程
+     */
+    @Schema(description = "试卷所属课程id")
+    @TableField(value = "course_id")
+    private Long courseId;
+
+    /**
+     * 试卷状态
+     */
+    @Schema(description = "试卷状态")
+    @TableField(value = "status")
+    private Integer status;
+
+
+    /**
      * 试卷标题
      */
     @Schema(description = "试卷标题")    
