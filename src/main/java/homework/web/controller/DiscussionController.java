@@ -114,7 +114,7 @@ public class DiscussionController {
         AssertUtils.isTrue(courseService.exists(wrapper), HttpStatus.NOT_FOUND, "课程不存在");
         Discussion param = new Discussion();
         // 设置课程id和用户id
-        param.setCourseId(param.getCourseId());
+        param.setCourseId(form.getCourseId());
         param.setUserId(AuthUtils.getCurrentUserId());
         param.setTitle(form.getTitle());
         param.setContent(form.getContent());
