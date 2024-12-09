@@ -3,17 +3,11 @@
 <mapper namespace="homework.web.dao.AssignmentDao">
 
 
-    <resultMap id="AssignmentMap" type="homework.web.entity.po.Assignment">
-        <result property="assignmentId" column="assignment_id" jdbcType="INTEGER"/>
-        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
-        <result property="title" column="title" jdbcType="VARCHAR"/>
-        <result property="description" column="description" jdbcType="VARCHAR"/>
-        <result property="deadline" column="deadline" jdbcType="TIMESTAMP"/>
-        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <resultMap id="AssignmentMap" type="homework.web.entity.po.Assignment" autoMapping="true">
     </resultMap>
     
     <resultMap id="AssignmentVOMap" type="homework.web.entity.vo.AssignmentVO" extends="AssignmentMap" autoMapping="true"/>
-
+    <resultMap id="AssignmentDetailVOMap" type="homework.web.entity.vo.AssignmentDetailVO" extends="AssignmentVOMap" autoMapping="true"/>
     <!--查询单个-->
     <select id="queryById" resultMap="AssignmentVOMap">
         select *
@@ -31,10 +25,10 @@
                 and `course_id` = #{courseId}
             </if>
             <if test="title != null and title != ''">
-                and `title` = #{title}
+                and `title` like concat('%', #{title}. '%')
             </if>
             <if test="description != null and description != ''">
-                and `description` = #{description}
+                and `description` like concat( '%', #{description} ,'%')
             </if>
             <if test="deadline != null">
                 and `deadline` = #{deadline}
@@ -59,7 +53,60 @@
         from `assignment`
         <include refid="queryCondition"/>
     </select>
- 
+
+    <!--筛选条件-->
+    <sql id="queryDetailCondition">
+        <where>
+            <if test="assignmentId != null">
+                and `assignment_id` = #{assignmentId}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="title != null and title != ''">
+                and `title` like concat('%', #{title}. '%')
+            </if>
+            <if test="description != null and description != ''">
+                and `description` like concat( '%', #{description} ,'%')
+            </if>
+            <if test="deadline != null">
+                and `deadline` = #{deadline}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+            <if test="studentId != null">
+                and `student_id` = #{studentId}
+            </if>
+            <if test="submissionId != null">
+                and `submission_id` = #{submissionId}
+            </if>
+            <if test="submissionStatus != null">
+                and `submission_status` = #{submissionStatus}
+            </if>
+            <if test="submissionStatusList != null and submissionStatusList.size() >0">
+                and `submission_status`in
+                <foreach collection="submissionStatusList" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="submitTime != null">
+                and `submit_time` = #{submitTime}
+            </if>
+        </where>
+    </sql>
+
+    <select id="queryAllDetail" resultMap="AssignmentDetailVOMap">
+        select  *
+        from `assignment_with_submission_detail`
+        <include refid="queryDetailCondition"/>
+    </select>
+    <select id="countDetail" resultType="java.lang.Integer">
+        select count(1)
+        from `assignment_with_submission_detail`
+        <include refid="queryDetailCondition"/>
+    </select>
+
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="assignmentId" useGeneratedKeys="true">

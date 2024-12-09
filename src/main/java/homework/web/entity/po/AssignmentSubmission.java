@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonValue;
 import homework.web.config.valid.AddGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
 
@@ -26,15 +27,15 @@ public class AssignmentSubmission implements Serializable {
 
     public enum Status implements IEnum<Integer> {
         /**
-         * 未提交
+         * 0，未提交
          */
         UNCOMMITTED(0),
         /**
-         * 未批改
+         * 1,未批改
          */
         UNCORRECTED(1),
         /**
-         * 已批改
+         * 2,已批改
          */
         CORRECTED(2);
 
@@ -63,6 +64,7 @@ public class AssignmentSubmission implements Serializable {
      */
     @Schema(description = "作业ID")    
     @TableField(value = "assignment_id")
+    @NotNull(message = "作业ID不能为空", groups = {AddGroup.class})
     private Long assignmentId;
 
     /**

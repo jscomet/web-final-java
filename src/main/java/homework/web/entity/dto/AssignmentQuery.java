@@ -1,6 +1,7 @@
 package homework.web.entity.dto;
 
 import homework.web.entity.po.Assignment;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

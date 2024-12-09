@@ -1,40 +1,40 @@
 package homework.web.entity.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import homework.web.config.valid.AddGroup;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import lombok.Data;
 
 import java.io.Serial;
-import java.time.LocalDateTime;
 
 /**
- * Description
+ * 作业提交参数
  *
  * @author 30597
  * @since 2024-12-03 9:43
  */
 @Data
-public class AssignmentSubmissionCommitParam implements java.io.Serializable {
+public class AssignmentSubmitParam implements java.io.Serializable {
     @Serial
     private static final long serialVersionUID = -66817178147424480L;
+    @Schema(description = "作业ID")
+    @NotNull(message = "作业ID不能为空")
+    private Long assignmentId;
 
     /**
      * 提交内容
      */
     @Schema(description = "提交内容")
-    @TableField(value = "content")
+    @NotNull(message = "提交内容不能为空")
+    @NotBlank(message = "提交内容不能为空")
     private String content;
 
     /**
      * 文件URL
      */
     @Schema(description = "文件URL")
-    @TableField(value = "file_url")
+    @NotNull(message = "文件URL不能为空")
+    @NotBlank(message = "文件URL不能为空")
     private String fileUrl;
 }

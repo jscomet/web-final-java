@@ -112,25 +112,19 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
         AssertUtils.notNull(courseEnrollment, HttpStatus.NOT_FOUND, "课程注册信息不存在");
         AssertUtils.isTrue(Objects.equals(AuthUtils.getCurrentUserId(), courseEnrollment.getStudentId()), HttpStatus.FORBIDDEN, "无权限操作");
 
-        // 课程状态异常
-        AssertUtils.isTrue(
-                List.of(CourseEnrollment.Status.UNSTART, CourseEnrollment.Status.ONGOING).contains(courseEnrollment.getStatus())
-                , HttpStatus.BAD_REQUEST, "已完成或以退出的课程不能退课");
-
-        //更新课程状态
-        LambdaUpdateWrapper<CourseEnrollment> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(CourseEnrollment::getEnrollmentId, id).set(CourseEnrollment::getStatus, CourseEnrollment.Status.QUIT);
-        this.update(updateWrapper);
-        // 更新课程人数
         Course course = courseService.getById(courseEnrollment.getCourseId());
         // 课程不存在
         AssertUtils.notNull(course, HttpStatus.NOT_FOUND, "课程不存在");
+        // 课程状态异常
+        AssertUtils.isTrue(course.getStatus() == Course.Status.ARCHIVED, HttpStatus.BAD_REQUEST, "课程已结束");
+
         // 更新课程人数
         courseService.lambdaUpdate()
-                .eq(Course::getCourseId, course.getCourseId())
+                .eq(Course::getCourseId, courseEnrollment.getCourseId())
                 .set(Course::getStudentCount, course.getStudentCount() - 1)
                 .update();
-        return true;
+        // 删除课程注册信息
+        return super.removeById(id);
     }
 
     @Override
@@ -139,6 +133,7 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
                 .list()
                 .stream()
                 .map(CourseEnrollment::getStudentId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -147,6 +142,7 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
         return this.lambdaQuery().eq(CourseEnrollment::getStudentId, studentId).list()
                 .stream()
                 .map(CourseEnrollment::getCourseId)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 }

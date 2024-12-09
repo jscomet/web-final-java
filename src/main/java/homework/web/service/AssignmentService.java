@@ -2,8 +2,11 @@ package homework.web.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import homework.web.entity.dto.AssignmentDetailQuery;
+import homework.web.entity.dto.AssignmentSubmitParam;
 import homework.web.entity.po.Assignment;
 import homework.web.entity.dto.AssignmentQuery;
+import homework.web.entity.vo.AssignmentDetailVO;
 import homework.web.entity.vo.AssignmentVO;
 
 import java.util.List;
@@ -54,5 +57,27 @@ public interface AssignmentService extends IService<Assignment> {
      * @return 是否成功
      */
     boolean publish(Assignment param);
+    /**
+     * 作业提交详情
+     *
+     * @param param 作业参数
+     * @return 是否成功
+     */
+    List<AssignmentDetailVO> queryAllDetail(Integer current, Integer pageSize, AssignmentQuery param);
+    /**
+     * 作业提交详情计数
+     *
+     * @param param 作业参数
+     * @return 数量
+     */
+    int countDetail(AssignmentDetailQuery param);
+    /**
+     * 提交作业
+     *
+     * @param studentId 学生ID
+     * @param param     作业提交参数
+     * @return 是否成功
+     */
+    boolean submit(Long studentId, AssignmentSubmitParam param);
 }
 

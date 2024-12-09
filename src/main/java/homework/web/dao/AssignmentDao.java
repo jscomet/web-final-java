@@ -2,6 +2,8 @@ package homework.web.dao;
 
 import java.util.List;
 
+import homework.web.entity.dto.AssignmentDetailQuery;
+import homework.web.entity.vo.AssignmentDetailVO;
 import org.apache.ibatis.annotations.Mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
@@ -58,6 +60,18 @@ public interface AssignmentDao extends BaseMapper<Assignment> {
     */
     int insertOrUpdateBatch(@Param("entities") List<Assignment> entities);
 
+    /**
+     * 查询所有作业详情
+     * @param param 查询参数
+     * @return 对象列表
+     */
+    List<AssignmentDetailVO> queryAllDetail(AssignmentQuery param);
+    /**
+     * 查询所有作业详情数量
+     * @param param 查询参数
+     * @return 数量
+     */
+    int countDetail(AssignmentDetailQuery param);
 }
 
 
