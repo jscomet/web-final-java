@@ -14,6 +14,7 @@ import homework.web.entity.vo.UserVO;
 import homework.web.service.*;
 import homework.web.entity.dto.TestRecordQuery;
 import homework.web.entity.vo.TestRecordVO;
+import homework.web.util.AIHelperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
@@ -108,14 +109,25 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
         }
         // 获得试卷id对应的试卷中的题目数目
         int questionCount = selfTestVO.getQuestions().size();
-        int lose = 0;
-        int win = 0;
+        float win = 0;
         // 逐个比较selfTestVO中question和trCommit中的questionId相同答案是否相同
         for (TestRecordCommitParam.Answer answer : trCommit.getAnswers()) {
             // Fetch the question from the database using questionId
             QuestionBank question = questionBankService.getById(answer.getQuestionId());
-            if (question == null || !question.getCorrectAnswer().equals(answer.getAnswer())) {
-                lose++;
+            if (question.getType() == 1) {
+//                判断多选复杂一点点
+                String[] correctAnswers = question.getCorrectAnswer().split(",");
+                String[] userAnswers = answer.getAnswer().split(",");
+                if (correctAnswers.length != userAnswers.length) {
+                    continue;
+                }
+            }else if (question.getType() == 4) {
+//                问答题的判断
+                String s = AIHelperUtils.aiAnalyse("正确答案是" + question.getCorrectAnswer() + "，学生答案是" + answer.getAnswer() + "。请你从0分到1分之间给出一个评分。用数字作答");
+                win += Float.parseFloat(s);
+            }
+            else if (!question.getCorrectAnswer().equals(answer.getAnswer())) {
+//             单选、填空、判断是这里
                 continue;
             }
             win++;
