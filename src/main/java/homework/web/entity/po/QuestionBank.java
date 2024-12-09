@@ -107,5 +107,4 @@ public class QuestionBank implements Serializable {
     @TableField(value = "create_time")
     private LocalDateTime createTime;
 
-
 }

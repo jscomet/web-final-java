@@ -46,6 +46,9 @@
             <if test="createTime != null">
                 and `create_time` = #{createTime}
             </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
         </where>
     </sql>
 

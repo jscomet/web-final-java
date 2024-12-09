@@ -19,6 +19,9 @@ public class TestRecordCommitParam {
     @Schema(description = "答案列表")
     private List<Answer> answers;
 
+    @Schema(description = "课程编号")
+    private Long courseId;
+
     @Data
     public static class Answer {
         @Schema(description = "问题ID")
