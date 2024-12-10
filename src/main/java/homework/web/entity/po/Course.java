@@ -154,6 +154,13 @@ public class Course implements Serializable {
     private Integer studentCount;
 
     /**
+     * 学习进度
+     */
+    @Schema(description = "学习进度")
+    @TableField(value = "progress")
+    private Float progress;
+
+    /**
      * 创建时间
      */
     @Schema(description = "创建时间")

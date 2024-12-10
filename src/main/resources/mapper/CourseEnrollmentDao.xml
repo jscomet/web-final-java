@@ -3,13 +3,7 @@
 <mapper namespace="homework.web.dao.CourseEnrollmentDao">
 
 
-    <resultMap id="CourseEnrollmentMap" type="homework.web.entity.po.CourseEnrollment">
-        <result property="enrollmentId" column="enrollment_id" jdbcType="INTEGER"/>
-        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
-        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
-        <result property="status" column="status" jdbcType="INTEGER"/>
-        <result property="progress" column="progress" jdbcType="NUMERIC"/>
-        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <resultMap id="CourseEnrollmentMap" type="homework.web.entity.po.CourseEnrollment" autoMapping="true">
     </resultMap>
     
     <resultMap id="CourseEnrollmentVOMap" type="homework.web.entity.vo.CourseEnrollmentVO" extends="CourseEnrollmentMap" autoMapping="true"/>
@@ -36,9 +30,6 @@
             <if test="status != null">
                 and `status` = #{status}
             </if>
-            <if test="progress != null">
-                and `progress` = #{progress}
-            </if>
             <if test="createTime != null">
                 and `create_time` = #{createTime}
             </if>
@@ -62,24 +53,23 @@
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="enrollmentId" useGeneratedKeys="true">
-        insert into course_enrollment(course_id,student_id,status,progress,create_time)
+        insert into course_enrollment(course_id,student_id,status,create_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.courseId},#{entity.studentId},#{entity.status},#{entity.progress},#{entity.createTime})
+        (#{entity.courseId},#{entity.studentId},#{entity.status},#{entity.createTime})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="enrollmentId" useGeneratedKeys="true">
-        insert into course_enrollment(course_id,student_id,status,progress,create_time)
+        insert into course_enrollment(course_id,student_id,status,create_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.courseId},#{entity.studentId},#{entity.status},#{entity.progress},#{entity.createTime})
+            (#{entity.courseId},#{entity.studentId},#{entity.status},#{entity.createTime})
         </foreach>
         on duplicate key update
            course_id = values(course_id) ,
            student_id = values(student_id) ,
            status = values(status) ,
-           progress = values(progress) ,
            create_time = values(create_time)     
     </insert>
 

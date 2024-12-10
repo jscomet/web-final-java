@@ -255,7 +255,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     public List<UserVO> queryStudentsByCourseId(Long courseId) {
 
         List<Long> studentIds = courseEnrollmentService.lambdaQuery().eq(CourseEnrollment::getCourseId, courseId)
-                .ne(CourseEnrollment::getStatus, CourseEnrollment.Status.QUIT)
+                .eq(CourseEnrollment::getStatus, CourseEnrollment.Status.SELECTED)
                 .list()
                 .stream()
                 .map(CourseEnrollment::getStudentId)

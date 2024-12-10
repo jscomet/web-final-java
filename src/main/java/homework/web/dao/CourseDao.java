@@ -2,6 +2,8 @@ package homework.web.dao;
 
 import java.util.List;
 
+import homework.web.entity.dto.CourseWithEnrollQuery;
+import homework.web.entity.vo.CourseWithEnrollVO;
 import org.apache.ibatis.annotations.Mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
@@ -57,7 +59,20 @@ public interface CourseDao extends BaseMapper<Course> {
     * @throws org.springframework.jdbc.BadSqlGrammarException 入参是空List的时候会抛SQL语句错误的异常，请自行校验入参
     */
     int insertOrUpdateBatch(@Param("entities") List<Course> entities);
-
+    /**
+     * 查询多条数据
+     *
+     * @param param    查询参数
+     * @return 对象列表
+     */
+    List<CourseWithEnrollVO> queryAllWithEnroll(CourseWithEnrollQuery param);
+    /**
+     * 通过实体作为筛选条件计数
+     *
+     * @param param 查询参数
+     * @return 数量
+     */
+    int countWithEnroll(CourseWithEnrollQuery param);
 }
 
 

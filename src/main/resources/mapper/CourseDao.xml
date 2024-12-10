@@ -18,10 +18,11 @@
         <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
         <result property="likeCount" column="like_count" jdbcType="INTEGER"/>
         <result property="studentCount" column="student_count" jdbcType="INTEGER"/>
+        <result property="progress" column="progress" jdbcType="NUMERIC"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
-    
+
     <resultMap id="CourseVOMap" type="homework.web.entity.vo.CourseVO" extends="CourseMap" autoMapping="true"/>
 
     <!--查询单个-->
@@ -31,8 +32,8 @@
         where `course_id` = #{courseId}
     </select>
 
-     <!--筛选条件-->
-   <sql id="queryCondition">
+    <!--筛选条件-->
+    <sql id="queryCondition">
         <where>
             <if test="courseId != null">
                 and `course_id` = #{courseId}
@@ -41,7 +42,7 @@
                 and `title` = #{title}
             </if>
             <if test="description != null and description != ''">
-                and `description` = #{description}
+                and `description` like #{description}
             </if>
             <if test="categoryId != null">
                 and `category_id` = #{categoryId}
@@ -76,11 +77,26 @@
             <if test="studentCount != null">
                 and `student_count` = #{studentCount}
             </if>
+            <if test="progress != null">
+                and `progress` = #{progress}
+            </if>
             <if test="createTime != null">
                 and `create_time` = #{createTime}
             </if>
             <if test="updateTime != null">
                 and `update_time` = #{updateTime}
+            </if>
+            <if test="courseIds != null and courseIds.size() > 0">
+                and `course_id` in
+                <foreach collection="courseIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="statuses != null and statuses.size() > 0">
+                and `status` in
+                <foreach collection="courseStatus" item="status" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
             </if>
         </where>
     </sql>
@@ -92,10 +108,10 @@
         <include refid="queryCondition"/>
         <choose>
             <when test="sorter != null and sorter.column != null and sorter.mode != null">
-                order by  ${sorter.column} ${sorter.mode} , is_recommended desc ,course_id
+                order by ${sorter.column} ${sorter.mode} ,course_id
             </when>
             <otherwise>
-                order by is_recommended desc ,course_id
+                order by course_id
             </otherwise>
         </choose>
     </select>
@@ -106,39 +122,137 @@
         from `course`
         <include refid="queryCondition"/>
     </select>
- 
+
+    <!--筛选条件-->
+    <sql id="queryWithEnrollCondition">
+        <where>
+            <if test="courseId != null">
+                and c.`course_id` = #{courseId}
+            </if>
+            <if test="title != null and title != ''">
+                and c.`title` = #{title}
+            </if>
+            <if test="description != null and description != ''">
+                and c.`description` like #{description}
+            </if>
+            <if test="categoryId != null">
+                and c.`category_id` = #{categoryId}
+            </if>
+            <if test="teacherId != null">
+                and c.`teacher_id` = #{teacherId}
+            </if>
+            <if test="teacherName != null and teacherName != ''">
+                and c.`teacher_name` = #{teacherName}
+            </if>
+            <if test="coverImage != null and coverImage != ''">
+                and c.`cover_image` = #{coverImage}
+            </if>
+            <if test="isRecommended != null">
+                and c.`is_recommended` = #{isRecommended}
+            </if>
+            <if test="status != null">
+                and c.`status` = #{status}
+            </if>
+            <if test="allowComment != null">
+                and c.`allow_comment` = #{allowComment}
+            </if>
+            <if test="allowNotes != null">
+                and c.`allow_notes` = #{allowNotes}
+            </if>
+            <if test="viewCount != null">
+                and c.`view_count` = #{viewCount}
+            </if>
+            <if test="likeCount != null">
+                and c.`like_count` = #{likeCount}
+            </if>
+            <if test="studentCount != null">
+                and c.`student_count` = #{studentCount}
+            </if>
+            <if test="progress != null">
+                and c.`progress` = #{progress}
+            </if>
+            <if test="createTime != null">
+                and c.`create_time` = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and c.`update_time` = #{updateTime}
+            </if>
+            <if test="enrollmentId !=null">
+                and e.`enrollment_id` = #{enrollmentId}
+            </if>
+            <if test="studentId !=null">
+                and e.`student_id` = #{studentId}
+            </if>
+            <if test="enrollStatus !=null">
+                and e.`status` = #{enrollStatus}
+            </if>
+            <if test="courseIds != null and courseIds.size() > 0">
+                and c.`course_id` in
+                <foreach collection="courseIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="statuses != null and statuses.size() > 0">
+                and c.`status` in
+                <foreach collection="courseStatus" item="status" open="(" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+    <select id="queryAllWithEnroll" resultType="homework.web.entity.vo.CourseWithEnrollVO">
+        select c.*,
+               e.enrollment_id,
+               e.student_id,
+               e.status      as enroll_status,
+               e.create_time as enroll_time
+        from course c
+                 join course_enrollment e on c.course_id = e.course_id
+        <include refid="queryWithEnrollCondition"/>
+    </select>
+    <select id="countWithEnroll" resultType="java.lang.Integer">
+        select count(1)
+        from course c
+                 join course_enrollment e on c.course_id = e.course_id
+        <include refid="queryWithEnrollCondition"/>
+    </select>
+
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="courseId" useGeneratedKeys="true">
-        insert into course(title,description,category_id,teacher_id,teacher_name,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
+        insert into
+        course(title,description,category_id,teacher_id,teacher_name,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,progress,create_time,update_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.teacherName},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
+            (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.teacherName},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.progress},#{entity.createTime},#{entity.updateTime})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="courseId" useGeneratedKeys="true">
-        insert into course(title,description,category_id,teacher_id,teacher_name,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,create_time,update_time)
+        insert into
+        course(title,description,category_id,teacher_id,teacher_name,cover_image,is_recommended,status,allow_comment,allow_notes,view_count,like_count,student_count,progress,create_time,update_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.teacherName},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.createTime},#{entity.updateTime})
+            (#{entity.title},#{entity.description},#{entity.categoryId},#{entity.teacherId},#{entity.teacherName},#{entity.coverImage},#{entity.isRecommended},#{entity.status},#{entity.allowComment},#{entity.allowNotes},#{entity.viewCount},#{entity.likeCount},#{entity.studentCount},#{entity.progress},#{entity.createTime},#{entity.updateTime})
         </foreach>
         on duplicate key update
-           title = values(title) ,
-           description = values(description) ,
-           category_id = values(category_id) ,
-           teacher_id = values(teacher_id) ,
-           teacher_name = values(teacher_name) ,
-           cover_image = values(cover_image) ,
-           is_recommended = values(is_recommended) ,
-           status = values(status) ,
-           allow_comment = values(allow_comment) ,
-           allow_notes = values(allow_notes) ,
-           view_count = values(view_count) ,
-           like_count = values(like_count) ,
-           student_count = values(student_count) ,
-           create_time = values(create_time) ,
-           update_time = values(update_time)     
+        title = values(title) ,
+        description = values(description) ,
+        category_id = values(category_id) ,
+        teacher_id = values(teacher_id) ,
+        teacher_name = values(teacher_name) ,
+        cover_image = values(cover_image) ,
+        is_recommended = values(is_recommended) ,
+        status = values(status) ,
+        allow_comment = values(allow_comment) ,
+        allow_notes = values(allow_notes) ,
+        view_count = values(view_count) ,
+        like_count = values(like_count) ,
+        student_count = values(student_count) ,
+        progress = values(progress) ,
+        create_time = values(create_time) ,
+        update_time = values(update_time)
     </insert>
 
 </mapper>

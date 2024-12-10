@@ -2,9 +2,11 @@ package homework.web.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import homework.web.entity.dto.CourseWithEnrollQuery;
 import homework.web.entity.po.Course;
 import homework.web.entity.dto.CourseQuery;
 import homework.web.entity.vo.CourseVO;
+import homework.web.entity.vo.CourseWithEnrollVO;
 
 import java.util.List;
 
@@ -40,6 +42,21 @@ public interface CourseService extends IService<Course> {
      * @return 数量
      */
     int count(CourseQuery param);
-
+    /**
+     * 查询多条数据
+     *
+     * @param current  查询页面
+     * @param pageSize 查询条数
+     * @param param    查询参数
+     * @return 对象列表
+     */
+    List<CourseWithEnrollVO> queryAllWithEnroll(Integer current, Integer pageSize, CourseWithEnrollQuery param);
+    /**
+     * 通过实体作为筛选条件计数
+     *
+     * @param param 查询参数
+     * @return 数量
+     */
+    int countWithEnroll(CourseWithEnrollQuery param);
 }
 

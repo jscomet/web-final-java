@@ -25,22 +25,18 @@ public class CourseEnrollment implements Serializable {
 
     public enum Status implements IEnum<Integer> {
         /**
-         * 未开始
+         * 0 选中
          */
-        UNSTART(0),
+        SELECTED(0),
         /**
-         * 进行中
+         * 1 收藏
          */
-        ONGOING(1),
+        COLLECTED(1),
         /**
-         * 已完成
+         * 2 取消
          */
-        COMPLETED(2),
-        /**
-         * 已退出
-         */
-        QUIT(3);
-
+        CANCEL(2),
+        ;
         private final int value;
 
         @Override
@@ -76,18 +72,11 @@ public class CourseEnrollment implements Serializable {
     private Long studentId;
 
     /**
-     * 状态：0-未开始,1-进行中、2-已完成、3-已退出
+     * 状态：0-选中 ，1-收藏 ，2-取消
      */
-    @Schema(description = "状态：0-未开始,1-进行中、2-已完成、3-已退出")
+    @Schema(description = "状态：0-选中 ，1-收藏 ，2-取消")
     @TableField(value = "status")
     private Status status;
-
-    /**
-     * 学习进度
-     */
-    @Schema(description = "学习进度")
-    @TableField(value = "progress")
-    private Float progress;
 
     /**
      * 注册时间

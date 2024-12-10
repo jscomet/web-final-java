@@ -1,19 +1,23 @@
 package homework.web.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import homework.web.annotation.PermissionAuthorize;
 import homework.web.config.valid.QueryGroup;
 import homework.web.entity.dto.AssignmentQuery;
+import homework.web.entity.dto.AssignmentSubmissionQuery;
 import homework.web.entity.dto.CourseQuery;
+import homework.web.entity.dto.CourseWithEnrollQuery;
 import homework.web.entity.po.Course;
+import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.po.User;
-import homework.web.entity.vo.AssignmentVO;
-import homework.web.entity.vo.CourseVO;
-import homework.web.entity.vo.UserVO;
+import homework.web.entity.vo.*;
 import homework.web.service.*;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -35,8 +39,7 @@ public class CourseController {
     private CourseService courseService;
     @Resource
     private UserService userService;
-    @Resource
-    private AssignmentService assignmentService;
+
 
     @Operation(summary = "获取指定课程信息信息")
     @GetMapping("/info/{id}")
@@ -55,20 +58,33 @@ public class CourseController {
         return CommonResult.success(new ListResult<>(list, total));
     }
 
+    @Operation(summary = "获取课程信息列表，包含注册信息")
+    @GetMapping("/list-enroll")
+    @PermissionAuthorize
+    public CommonResult<ListResult<CourseWithEnrollVO>> getCoursesWithEnroll(@RequestParam(defaultValue = "1") Integer current,
+                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                             @Validated(QueryGroup.class) CourseWithEnrollQuery param) {
+        List<CourseWithEnrollVO> list = courseService.queryAllWithEnroll(current, pageSize, param);
+        int total = courseService.countWithEnroll(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+    @Operation(summary = "获取我的课程信息列表，包含注册信息")
+    @GetMapping("/list-self-enroll")
+    @PermissionAuthorize
+    public CommonResult<ListResult<CourseWithEnrollVO>> getMyCoursesWithEnroll(@RequestParam(defaultValue = "1") Integer current,
+                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                             @Validated(QueryGroup.class) CourseWithEnrollQuery param) {
+        param.setStudentId(AuthUtils.getCurrentUserId());
+        List<CourseWithEnrollVO> list = courseService.queryAllWithEnroll(current, pageSize, param);
+        int total = courseService.countWithEnroll(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
     @Operation(summary = "对应课程下的所有学生账号")
     @GetMapping("/list-student/{id}")
     public CommonResult<ListResult<UserVO>> getCourseStudents(@PathVariable Long id) {
         List<UserVO> list = userService.queryStudentsByCourseId(id);
         list.forEach(userService::desensitize);
-        return CommonResult.success(new ListResult<>(list, list.size()));
-    }
-
-    @Operation(summary = "对应课程的作业的提交情况")
-    @GetMapping("/list-assignment/{id}")
-    public CommonResult<ListResult<AssignmentVO>> getCourseAssignments(@PathVariable Long id) {
-        AssignmentQuery query = new AssignmentQuery();
-        query.setCourseId(id);
-        List<AssignmentVO> list = assignmentService.queryAll(-1, -1, query);
         return CommonResult.success(new ListResult<>(list, list.size()));
     }
 
