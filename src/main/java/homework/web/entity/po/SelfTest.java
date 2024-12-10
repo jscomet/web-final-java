@@ -48,7 +48,7 @@ public class SelfTest implements Serializable {
     /**
      * 试卷状态
      */
-    @Schema(description = "试卷状态")
+    @Schema(description = "试卷状态 0-未发布 1-已发布")
     @TableField(value = "status")
     private Integer status;
 
