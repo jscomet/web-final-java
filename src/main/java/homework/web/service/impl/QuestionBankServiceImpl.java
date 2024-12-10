@@ -81,6 +81,7 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankDao, Questi
                 .in(QuestionBank::getQuestionId, questionIds)
                 .list().stream()
                 .map(QuestionBank::getType)
+                .distinct()
                 .map(QuestionBank.Type::valueOf)
                 .filter(Objects::nonNull)
                 .map(QuestionBank.Type::getDesc)
