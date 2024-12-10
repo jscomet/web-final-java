@@ -12,11 +12,13 @@ import homework.web.entity.vo.AssignmentStatVO;
 import homework.web.entity.vo.AssignmentVO;
 import homework.web.entity.vo.AssignmentWithStatVO;
 import homework.web.service.AssignmentService;
+import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -81,10 +83,10 @@ public class AssignmentController {
     @Operation(summary = "获取作业统计情况列表")
     @GetMapping("/list-stats")
     public CommonResult<ListResult<AssignmentWithStatVO>> getAssignmentsWithStats(@RequestParam(defaultValue = "1") Integer current,
-                                                                               @RequestParam(defaultValue = "10") Integer pageSize,
-                                                                               @Validated(QueryGroup.class) AssignmentDetailQuery param) {
+                                                                                  @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                  @Validated(QueryGroup.class) AssignmentDetailQuery param) {
 
-        List<AssignmentWithStatVO> list = assignmentService.queryAllWithStat(current,pageSize, param);
+        List<AssignmentWithStatVO> list = assignmentService.queryAllWithStat(current, pageSize, param);
         int total = assignmentService.countDetail(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
@@ -105,8 +107,10 @@ public class AssignmentController {
     @PostMapping("/submit")
     @PermissionAuthorize
     public CommonResult<Boolean> submitAssignment(@RequestBody @Validated AssignmentSubmitParam param) {
+
+        AssertUtils.isTrue(StringUtils.isNotBlank(param.getContent()) || StringUtils.isNotBlank(param.getFileUrl()), HttpStatus.BAD_REQUEST, "提交内容和文件URL不能同时为空");
         Long studentId = AuthUtils.getCurrentUserId();
-        return assignmentService.submit(studentId,param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+        return assignmentService.submit(studentId, param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
 

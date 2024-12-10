@@ -26,15 +26,11 @@ public class AssignmentSubmitParam implements java.io.Serializable {
      * 提交内容
      */
     @Schema(description = "提交内容")
-    @NotNull(message = "提交内容不能为空")
-    @NotBlank(message = "提交内容不能为空")
     private String content;
 
     /**
      * 文件URL
      */
     @Schema(description = "文件URL")
-    @NotNull(message = "文件URL不能为空")
-    @NotBlank(message = "文件URL不能为空")
     private String fileUrl;
 }

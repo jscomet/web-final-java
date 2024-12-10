@@ -141,12 +141,13 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentDao, Assignment
         Assignment assignment = super.getById(param.getAssignmentId());
         AssertUtils.notNull(assignment, HttpStatus.NOT_FOUND, "作业不存在");
 
-        // 查询是否已经提交
+        // 查询作业提交信息
         AssignmentSubmission old = assignmentSubmissionService.lambdaQuery()
                 .eq(AssignmentSubmission::getAssignmentId, param.getAssignmentId())
                 .eq(AssignmentSubmission::getStudentId, studentId)
                 .one();
-        AssertUtils.isTrue(old == null || AssignmentSubmission.Status.UNCOMMITTED.equals(old.getStatus()), HttpStatus.BAD_REQUEST, "已经提交过作业");
+        //判断是否可以提交
+        AssertUtils.isTrue(old == null || List.of(AssignmentSubmission.Status.UNCOMMITTED,AssignmentSubmission.Status.UNCORRECTED).contains(old.getStatus()), HttpStatus.BAD_REQUEST, "已经提交过作业");
 
         // 提交作业记录
         AssignmentSubmission submission = new AssignmentSubmission();
