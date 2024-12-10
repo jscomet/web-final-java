@@ -7,7 +7,9 @@ import homework.web.entity.dto.AssignmentSubmitParam;
 import homework.web.entity.po.Assignment;
 import homework.web.entity.dto.AssignmentQuery;
 import homework.web.entity.vo.AssignmentDetailVO;
+import homework.web.entity.vo.AssignmentStatVO;
 import homework.web.entity.vo.AssignmentVO;
+import homework.web.entity.vo.AssignmentWithStatVO;
 
 import java.util.List;
 
@@ -63,7 +65,7 @@ public interface AssignmentService extends IService<Assignment> {
      * @param param 作业参数
      * @return 是否成功
      */
-    List<AssignmentDetailVO> queryAllDetail(Integer current, Integer pageSize, AssignmentQuery param);
+    List<AssignmentDetailVO> queryAllDetail(Integer current, Integer pageSize, AssignmentDetailQuery param);
     /**
      * 作业提交详情计数
      *
@@ -79,5 +81,22 @@ public interface AssignmentService extends IService<Assignment> {
      * @return 是否成功
      */
     boolean submit(Long studentId, AssignmentSubmitParam param);
+    /**
+     * 查询作业统计情况
+     *
+     * @param current 查询页面
+     * @param pageSize 查询条数
+     * @param param 查询参数
+     * @return 对象列表
+     */
+    List<AssignmentWithStatVO> queryAllWithStat(Integer current, Integer pageSize, AssignmentDetailQuery param);
+
+    /**
+     * 查询作业统计情况计数
+     *
+     * @param param 查询参数
+     * @return 数量
+     */
+    AssignmentStatVO queryStat(AssignmentDetailQuery param);
 }
 

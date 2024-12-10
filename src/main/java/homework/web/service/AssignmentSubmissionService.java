@@ -45,14 +45,6 @@ public interface AssignmentSubmissionService extends IService<AssignmentSubmissi
     int count(AssignmentSubmissionQuery param);
 
     /**
-     * 获取作业的提交统计
-     *
-     * @param param 提交参数
-     * @return 是否成功
-     */
-    AssignmentSubmitStatVO querySubmitStat(AssignmentSubmissionQuery param);
-
-    /**
      * 根据课程id和作业id新增作业提交
      *
      * @param courseId     课程id

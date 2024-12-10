@@ -106,11 +106,4 @@ public class AssignmentSubmissionController {
         return assignmentSubmissionService.removeById(id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
 
-    @Operation(summary = "根据条件获取学生作业提交情况")
-    @GetMapping("/statistic")
-    public CommonResult<AssignmentSubmitStatVO> getAssignmentSubmitStat(AssignmentSubmissionQuery param) {
-        return CommonResult.success(assignmentSubmissionService.querySubmitStat(param));
-    }
-
-
 }

@@ -7,9 +7,10 @@ import homework.web.entity.dto.AssignmentDetailQuery;
 import homework.web.entity.dto.AssignmentQuery;
 import homework.web.entity.dto.AssignmentSubmitParam;
 import homework.web.entity.po.Assignment;
-import homework.web.entity.po.AssignmentSubmission;
 import homework.web.entity.vo.AssignmentDetailVO;
+import homework.web.entity.vo.AssignmentStatVO;
 import homework.web.entity.vo.AssignmentVO;
+import homework.web.entity.vo.AssignmentWithStatVO;
 import homework.web.service.AssignmentService;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
@@ -77,6 +78,23 @@ public class AssignmentController {
         return CommonResult.success(new ListResult<>(list, total));
     }
 
+    @Operation(summary = "获取作业统计情况列表")
+    @GetMapping("/list-stats")
+    public CommonResult<ListResult<AssignmentWithStatVO>> getAssignmentsWithStats(@RequestParam(defaultValue = "1") Integer current,
+                                                                               @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                               @Validated(QueryGroup.class) AssignmentDetailQuery param) {
+
+        List<AssignmentWithStatVO> list = assignmentService.queryAllWithStat(current,pageSize, param);
+        int total = assignmentService.countDetail(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
+    @Operation(summary = "获取作业统计情况信息")
+    @GetMapping("/stat-info")
+    public CommonResult<AssignmentStatVO> getAssignmentStatInfo(@Validated(QueryGroup.class) AssignmentDetailQuery param) {
+        return CommonResult.success(assignmentService.queryStat(param));
+    }
+
     @Operation(summary = "发布作业,并为每个选课的学生生成作业提交记录")
     @PostMapping("/publish")
     public CommonResult<Boolean> publishAssignment(@RequestBody @Validated(AddGroup.class) Assignment param) {
@@ -86,7 +104,7 @@ public class AssignmentController {
     @Operation(summary = "学生提交作业，如果没有提交记录则创建,有则更新")
     @PostMapping("/submit")
     @PermissionAuthorize
-    public CommonResult<Boolean> submitAssignment(@RequestBody @Validated(AddGroup.class) AssignmentSubmitParam param) {
+    public CommonResult<Boolean> submitAssignment(@RequestBody @Validated AssignmentSubmitParam param) {
         Long studentId = AuthUtils.getCurrentUserId();
         return assignmentService.submit(studentId,param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }

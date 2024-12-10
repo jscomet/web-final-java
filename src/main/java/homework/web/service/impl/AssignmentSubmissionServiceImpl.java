@@ -75,19 +75,6 @@ public class AssignmentSubmissionServiceImpl extends ServiceImpl<AssignmentSubmi
         return assignmentSubmissionDao.count(param);
     }
 
-    @Override
-    public AssignmentSubmitStatVO querySubmitStat(AssignmentSubmissionQuery param) {
-        AssignmentSubmitStatVO stat = new AssignmentSubmitStatVO();
-        param.setStatus(AssignmentSubmission.Status.UNCOMMITTED);
-        stat.setUnCommittedCount(this.count(param));
-        param.setStatus(AssignmentSubmission.Status.UNCORRECTED);
-        stat.setUnCorrectedCount(this.count(param));
-        param.setStatus(AssignmentSubmission.Status.CORRECTED);
-        stat.setCorrectedCount(this.count(param));
-        param.setStatus(null);
-        stat.setTotalCount(this.count(param));
-        return stat;
-    }
 
     @Override
     @Transactional

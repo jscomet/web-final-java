@@ -7,7 +7,9 @@
     </resultMap>
     
     <resultMap id="AssignmentVOMap" type="homework.web.entity.vo.AssignmentVO" extends="AssignmentMap" autoMapping="true"/>
-    <resultMap id="AssignmentDetailVOMap" type="homework.web.entity.vo.AssignmentDetailVO" extends="AssignmentVOMap" autoMapping="true"/>
+    <resultMap id="AssignmentDetailVOMap" type="homework.web.entity.vo.AssignmentDetailVO" extends="AssignmentVOMap" autoMapping="true">
+
+    </resultMap>
     <!--查询单个-->
     <select id="queryById" resultMap="AssignmentVOMap">
         select *

@@ -9,6 +9,8 @@ import homework.web.entity.dto.AssignmentSubmitParam;
 import homework.web.entity.po.Assignment;
 import homework.web.entity.po.AssignmentSubmission;
 import homework.web.entity.vo.AssignmentDetailVO;
+import homework.web.entity.vo.AssignmentStatVO;
+import homework.web.entity.vo.AssignmentWithStatVO;
 import homework.web.service.AssignmentService;
 import homework.web.entity.dto.AssignmentQuery;
 import homework.web.entity.vo.AssignmentVO;
@@ -23,7 +25,9 @@ import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 作业(Assignment)表服务实现类
@@ -100,7 +104,7 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentDao, Assignment
     }
 
     @Override
-    public List<AssignmentDetailVO> queryAllDetail(Integer current, Integer pageSize, AssignmentQuery param) {
+    public List<AssignmentDetailVO> queryAllDetail(Integer current, Integer pageSize, AssignmentDetailQuery param) {
         if (current >= 0 && pageSize >= 0) {
             PageHelper.startPage(current, pageSize);
         }
@@ -153,6 +157,39 @@ public class AssignmentServiceImpl extends ServiceImpl<AssignmentDao, Assignment
         submission.setSubmitTime(LocalDateTime.now());
         // 保存或更新提交信息
         return assignmentSubmissionService.saveOrUpdate(submission);
+    }
+
+    @Override
+    public List<AssignmentWithStatVO> queryAllWithStat(Integer current, Integer pageSize, AssignmentDetailQuery param) {
+        //拷贝一份查询参数
+        AssignmentDetailQuery query=new AssignmentDetailQuery();
+        BeanUtils.copyProperties(param,query);
+        return this.queryAllDetail(current,pageSize,query).stream()
+                .map(assignmentVO -> {
+                    AssignmentWithStatVO vo = new AssignmentWithStatVO();
+                    BeanUtils.copyProperties(assignmentVO, vo);
+                    query.setAssignmentId(assignmentVO.getAssignmentId());
+                    vo.setStat(this.queryStat(query));
+                    return vo;
+                }).collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @Override
+    public AssignmentStatVO queryStat(AssignmentDetailQuery query) {
+        AssignmentStatVO vo=new AssignmentStatVO();
+        //查询未提交
+        query.setSubmissionStatus(AssignmentSubmission.Status.UNCOMMITTED);
+        vo.setUnCommittedCount(this.countDetail(query));
+        //查询未批改
+        query.setSubmissionStatus(AssignmentSubmission.Status.UNCORRECTED);
+        vo.setUnCorrectedCount(this.countDetail(query));
+        //查询已批改
+        query.setSubmissionStatus(AssignmentSubmission.Status.CORRECTED);
+        vo.setCorrectedCount(this.countDetail(query));
+        //查询全部
+        query.setSubmissionStatus(null);
+        vo.setTotalCount(this.countDetail(query));
+        return vo;
     }
 }
 

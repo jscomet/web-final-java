@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 /**
  * 作业详情视图视图模型
  * Description
@@ -27,7 +29,7 @@ public class AssignmentDetailVO extends AssignmentVO {
     @Schema(description = "作业提交状态")
     private AssignmentSubmission.Status submissionStatus;
     @Schema(description = "作业提交时间")
-    private Long submitTime;
+    private LocalDateTime submitTime;
 
     @Schema(description = "作业提交内容")
     private AssignmentSubmission submission;
