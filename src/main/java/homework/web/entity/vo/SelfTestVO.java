@@ -18,9 +18,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SelfTestVO extends SelfTest {
-    /**
-     * 题目列表
-     */
     @Schema(description = "题目列表")
     private List<QuestionBank> questions;
 
@@ -28,5 +25,8 @@ public class SelfTestVO extends SelfTest {
     private List<String> questionTypes;
 
     @Schema(description = "题目数量")
-    private Integer questionCount;
+    private Long questionCount;
+
+    @Schema(description = "课程信息")
+    private CourseVO course;
 }

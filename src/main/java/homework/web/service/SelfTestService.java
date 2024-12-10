@@ -3,9 +3,11 @@ package homework.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import homework.web.entity.dto.SelfTestCreateParam;
+import homework.web.entity.dto.SelfTestWithRecordQuery;
 import homework.web.entity.po.SelfTest;
 import homework.web.entity.dto.SelfTestQuery;
 import homework.web.entity.vo.SelfTestVO;
+import homework.web.entity.vo.SelfTestWithRecordVO;
 
 import java.util.List;
 
@@ -66,5 +68,21 @@ public interface SelfTestService extends IService<SelfTest> {
      * @return 实例对象
      */
     boolean publish(Long id, Long courseId);
+    /**
+     * 查询多条数据
+     *
+     * @param current  查询页面
+     * @param pageSize 查询条数
+     * @param param    查询参数
+     * @return 对象列表
+     */
+    List<SelfTestWithRecordVO> queryAllWithRecord(Integer current, Integer pageSize, SelfTestWithRecordQuery param);
+    /**
+     * 通过实体作为筛选条件计数
+     *
+     * @param param 查询参数
+     * @return 数量
+     */
+    int countWithRecord(SelfTestWithRecordQuery param);
 }
 

@@ -16,8 +16,6 @@ import lombok.EqualsAndHashCode;
 public class TestRecordVO extends TestRecord {
     @Schema(description = "试卷标题")
     private String title;
-    @Schema(description = "试卷信息")
-    private SelfTestVO test;
     @Schema(description = "课程信息")
     private CourseVO course;
 }

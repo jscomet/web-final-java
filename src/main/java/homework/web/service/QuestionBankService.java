@@ -44,5 +44,12 @@ public interface QuestionBankService extends IService<QuestionBank> {
     List<QuestionBank> getQuestionIdsByCourseId(int id);
 
     List<QuestionBank> getQuestionsByTestId(Long testId);
+
+    /**
+     * 通过试卷ID获取试卷的题目类型
+     * @param testId 试卷ID
+     * @return 题目类型列表
+     */
+    List<String> getQuestionTypesByTestId(Long testId);
 }
 

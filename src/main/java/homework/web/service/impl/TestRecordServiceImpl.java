@@ -53,7 +53,7 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
 
     @Override
     public List<TestRecordVO> queryAll(int current, int pageSize, TestRecordQuery param) {
-        if(current > 0 && pageSize > 0) {
+        if(current >= 0 && pageSize >= 0) {
             PageHelper.startPage(current, pageSize);
         }
         List<TestRecordVO> list= testRecordDao.queryAll(param);
@@ -67,7 +67,6 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
         }
         if(vo.getTestId() != null) {
             SelfTestVO selfTestVO = selfTestService.queryById(vo.getTestId());
-            vo.setTest(selfTestVO);
             vo.setTitle(Optional.ofNullable(selfTestVO.getTitle()).orElseGet(()->""));
         }
         if(vo.getCourseId()!=null){

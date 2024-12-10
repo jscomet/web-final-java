@@ -41,23 +41,29 @@ public interface QuestionBankDao extends BaseMapper<QuestionBank> {
      * @return 数量
      */
     int count(QuestionBankQuery param);
+
     /**
-    * 批量新增数据（MyBatis原生foreach方法）
-    *
-    * @param entities List<QuestionBank> 实例对象列表
-    * @return 影响行数
-    */
+     * 批量新增数据（MyBatis原生foreach方法）
+     *
+     * @param entities List<QuestionBank> 实例对象列表
+     * @return 影响行数
+     */
     int insertBatch(@Param("entities") List<QuestionBank> entities);
 
     /**
-    * 批量新增或按主键更新数据（MyBatis原生foreach方法）
-    *
-    * @param entities List<QuestionBank> 实例对象列表
-    * @return 影响行数
-    * @throws org.springframework.jdbc.BadSqlGrammarException 入参是空List的时候会抛SQL语句错误的异常，请自行校验入参
-    */
+     * 批量新增或按主键更新数据（MyBatis原生foreach方法）
+     *
+     * @param entities List<QuestionBank> 实例对象列表
+     * @return 影响行数
+     * @throws org.springframework.jdbc.BadSqlGrammarException 入参是空List的时候会抛SQL语句错误的异常，请自行校验入参
+     */
     int insertOrUpdateBatch(@Param("entities") List<QuestionBank> entities);
-
+    /**
+     * 通过试卷ID获取试卷的题目类型
+     * @param testId 试卷ID
+     * @return 题目类型列表
+     */
+    List<Integer> selectQuestionTypesByTestId(@Param("testId") Long testId);
 }
 
 

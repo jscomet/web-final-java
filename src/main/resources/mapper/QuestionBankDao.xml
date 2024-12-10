@@ -11,9 +11,11 @@
         <result property="options" column="options" jdbcType="VARCHAR"/>
         <result property="correctAnswer" column="correct_answer" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="courseId" column="course_id" jdbcType="INTEGER"/>
     </resultMap>
-    
-    <resultMap id="QuestionBankVOMap" type="homework.web.entity.vo.QuestionBankVO" extends="QuestionBankMap" autoMapping="true"/>
+
+    <resultMap id="QuestionBankVOMap" type="homework.web.entity.vo.QuestionBankVO" extends="QuestionBankMap"
+               autoMapping="true"/>
 
     <!--查询单个-->
     <select id="queryById" resultMap="QuestionBankVOMap">
@@ -22,8 +24,8 @@
         where `question_id` = #{questionId}
     </select>
 
-     <!--筛选条件-->
-   <sql id="queryCondition">
+    <!--筛选条件-->
+    <sql id="queryCondition">
         <where>
             <if test="questionId != null">
                 and `question_id` = #{questionId}
@@ -65,30 +67,37 @@
         from `question_bank`
         <include refid="queryCondition"/>
     </select>
- 
+    <select id="selectQuestionTypesByTestId" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        select distinct type
+        from question_bank q
+                 join test_question tq on q.question_id = tq.question_id
+        where test_id = #{testId}
+    </select>
+
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="questionId" useGeneratedKeys="true">
         insert into question_bank(creator_id,type,question_text,options,correct_answer,create_time)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.creatorId},#{entity.type},#{entity.questionText},#{entity.options},#{entity.correctAnswer},#{entity.createTime})
+            (#{entity.creatorId},#{entity.type},#{entity.questionText},#{entity.options},#{entity.correctAnswer},#{entity.createTime})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="questionId" useGeneratedKeys="true">
-        insert into question_bank(creator_id,type,question_text,options,correct_answer,create_time)
+        insert into question_bank(creator_id,type,question_text,options,correct_answer,create_time,course_id)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.creatorId},#{entity.type},#{entity.questionText},#{entity.options},#{entity.correctAnswer},#{entity.createTime})
+            (#{entity.creatorId},#{entity.type},#{entity.questionText},#{entity.options},#{entity.correctAnswer},#{entity.createTime},#{entity.courseId})
         </foreach>
         on duplicate key update
-           creator_id = values(creator_id) ,
-           type = values(type) ,
-           question_text = values(question_text) ,
-           options = values(options) ,
-           correct_answer = values(correct_answer) ,
-           create_time = values(create_time)     
+        creator_id = values(creator_id) ,
+        type = values(type) ,
+        question_text = values(question_text) ,
+        options = values(options) ,
+        correct_answer = values(correct_answer) ,
+        create_time = values(create_time) ,
+        course_id = values(course_id)
     </insert>
 
 </mapper>

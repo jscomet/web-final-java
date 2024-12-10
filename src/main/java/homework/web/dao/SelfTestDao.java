@@ -2,6 +2,8 @@ package homework.web.dao;
 
 import java.util.List;
 
+import homework.web.entity.dto.SelfTestWithRecordQuery;
+import homework.web.entity.vo.SelfTestWithRecordVO;
 import org.apache.ibatis.annotations.Mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
@@ -58,6 +60,19 @@ public interface SelfTestDao extends BaseMapper<SelfTest> {
     */
     int insertOrUpdateBatch(@Param("entities") List<SelfTest> entities);
 
+    /**
+     * 查询所有自测试卷及其记录
+     * @param param 查询参数
+     * @return 对象列表
+     */
+    List<SelfTestWithRecordVO> queryAllWithRecord(SelfTestWithRecordQuery param);
+
+    /**
+     * 查询所有自测试卷及其记录数量
+     * @param param 查询参数
+     * @return 数量
+     */
+    int countWithRecord(SelfTestWithRecordQuery param);
 }
 
 

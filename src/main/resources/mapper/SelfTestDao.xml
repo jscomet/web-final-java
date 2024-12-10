@@ -3,17 +3,12 @@
 <mapper namespace="homework.web.dao.SelfTestDao">
 
 
-    <resultMap id="SelfTestMap" type="homework.web.entity.po.SelfTest">
-        <result property="testId" column="test_id" jdbcType="INTEGER"/>
-        <result property="creatorId" column="creator_id" jdbcType="INTEGER"/>
-        <result property="title" column="title" jdbcType="VARCHAR"/>
-        <result property="description" column="description" jdbcType="VARCHAR"/>
-        <result property="settings" column="settings" jdbcType="VARCHAR"/>
-        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    <resultMap id="SelfTestMap" type="homework.web.entity.po.SelfTest" autoMapping="true">
     </resultMap>
     
     <resultMap id="SelfTestVOMap" type="homework.web.entity.vo.SelfTestVO" extends="SelfTestMap" autoMapping="true"/>
 
+    <resultMap id="SelfTestWithRecordVOMap" type="homework.web.entity.vo.SelfTestWithRecordVO" extends="SelfTestMap" autoMapping="true"/>
     <!--查询单个-->
     <select id="queryById" resultMap="SelfTestVOMap">
         select *
@@ -31,16 +26,22 @@
                 and `creator_id` = #{creatorId}
             </if>
             <if test="title != null and title != ''">
-                and `title` = #{title}
+                and `title` like concat('%', #{title} ,'%')
             </if>
             <if test="description != null and description != ''">
-                and `description` = #{description}
+                and `description` like concat ('%', #{description} ,'%')
             </if>
             <if test="settings != null and settings != ''">
                 and `settings` = #{settings}
             </if>
             <if test="createTime != null">
                 and `create_time` = #{createTime}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
             </if>
         </where>
     </sql>
@@ -58,29 +59,81 @@
         from `self_test`
         <include refid="queryCondition"/>
     </select>
- 
+
+    <!--筛选条件-->
+    <sql id="queryWithRecordCondition">
+        <where>
+            <if test="testId != null">
+                and `test_id` = #{testId}
+            </if>
+            <if test="creatorId != null">
+                and `creator_id` = #{creatorId}
+            </if>
+            <if test="title != null and title != ''">
+                and `title` like concat('%', #{title} ,'%')
+            </if>
+            <if test="description != null and description != ''">
+                and `description` like concat ('%', #{description} ,'%')
+            </if>
+            <if test="settings != null and settings != ''">
+                and `settings` = #{settings}
+            </if>
+            <if test="createTime != null">
+                and `create_time` = #{createTime}
+            </if>
+            <if test="courseId != null">
+                and `course_id` = #{courseId}
+            </if>
+            <if test="status != null">
+                and `status` = #{status}
+            </if>
+            <if test="studentId != null">
+                and `student_id` = #{studentId}
+            </if>
+            <if test="recordId != null">
+                and `record_id` = #{recordId}
+            </if>
+            <if test="recordStatus != null">
+                and `record_status` = #{recordStatus}
+            </if>
+        </where>
+    </sql>
+    <select id="queryAllWithRecord" resultMap="SelfTestWithRecordVOMap" parameterType="homework.web.entity.dto.SelfTestWithRecordQuery">
+        select  *
+        from `test_with_record_detail`
+        <include refid="queryWithRecordCondition"/>
+    </select>
+    <select id="countWithRecord" resultType="java.lang.Integer"
+            parameterType="homework.web.entity.dto.SelfTestWithRecordQuery">
+        select count(1)
+        from `test_with_record_detail`
+        <include refid="queryWithRecordCondition"/>
+    </select>
+
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="testId" useGeneratedKeys="true">
-        insert into self_test(creator_id,title,description,settings,create_time)
+        insert into self_test(creator_id,title,description,settings,create_time,course_id,status)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.creatorId},#{entity.title},#{entity.description},#{entity.settings},#{entity.createTime})
+        (#{entity.creatorId},#{entity.title},#{entity.description},#{entity.settings},#{entity.createTime},#{entity.courseId},#{entity.status})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="testId" useGeneratedKeys="true">
-        insert into self_test(creator_id,title,description,settings,create_time)
+        insert into self_test(creator_id,title,description,settings,create_time,course_id,status)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.creatorId},#{entity.title},#{entity.description},#{entity.settings},#{entity.createTime})
+            (#{entity.creatorId},#{entity.title},#{entity.description},#{entity.settings},#{entity.createTime},#{entity.courseId},#{entity.status})
         </foreach>
         on duplicate key update
            creator_id = values(creator_id) ,
            title = values(title) ,
            description = values(description) ,
            settings = values(settings) ,
-           create_time = values(create_time)     
+           create_time = values(create_time) ,
+           course_id = values(course_id) ,
+           status = values(status)
     </insert>
 
 </mapper>

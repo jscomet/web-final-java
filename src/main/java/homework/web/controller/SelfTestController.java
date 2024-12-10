@@ -1,10 +1,13 @@
 package homework.web.controller;
 
+import homework.web.annotation.PermissionAuthorize;
 import homework.web.entity.dto.SelfTestCreateParam;
 import homework.web.entity.dto.SelfTestQuery;
+import homework.web.entity.dto.SelfTestWithRecordQuery;
 import homework.web.entity.po.QuestionBank;
 import homework.web.entity.po.SelfTest;
 import homework.web.entity.vo.SelfTestVO;
+import homework.web.entity.vo.SelfTestWithRecordVO;
 import homework.web.service.QuestionBankService;
 import homework.web.service.SelfTestService;
 import homework.web.util.AssertUtils;
@@ -58,6 +61,28 @@ public class SelfTestController {
         int total = selfTestService.count(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
+
+    @Operation(summary = "获取自测试卷详情列表，包括测试记录")
+    @GetMapping("/list-with-record")
+    public CommonResult<ListResult<SelfTestWithRecordVO>> getSelfTestsWithRecords(@RequestParam(defaultValue = "1") Integer current,
+                                                                                 @RequestParam(defaultValue = "10") Integer pageSize, SelfTestWithRecordQuery param) {
+        List<SelfTestWithRecordVO> list = selfTestService.queryAllWithRecord(current, pageSize, param);
+        int total = selfTestService.countWithRecord(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
+    @Operation(summary = "获取我的自测试卷详情列表，包括测试记录")
+    @GetMapping("/list-self-with-record")
+    @PermissionAuthorize
+    public CommonResult<ListResult<SelfTestWithRecordVO>> getMySelfTestsWithRecords(@RequestParam(defaultValue = "1") Integer current,
+                                                                                  @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                                  SelfTestWithRecordQuery param) {
+        param.setStudentId(AuthUtils.getCurrentUserId());
+        List<SelfTestWithRecordVO> list = selfTestService.queryAllWithRecord(current, pageSize, param);
+        int total = selfTestService.countWithRecord(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
 
     @Operation(summary = "添加自测试卷")
     @PostMapping("/add")

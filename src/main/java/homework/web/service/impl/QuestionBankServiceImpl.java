@@ -4,14 +4,20 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import homework.web.dao.QuestionBankDao;
 import homework.web.entity.po.QuestionBank;
+import homework.web.entity.po.TestQuestion;
 import homework.web.service.QuestionBankService;
 import homework.web.entity.dto.QuestionBankQuery;
 import homework.web.entity.po.QuestionBank;
 import homework.web.entity.vo.QuestionBankVO;
+import homework.web.service.TestQuestionService;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * 题库(QuestionBank)表服务实现类
  *
@@ -22,6 +28,8 @@ import java.util.List;
 public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankDao, QuestionBank> implements QuestionBankService {
     @Resource
     private QuestionBankDao questionBankDao;
+    @Resource
+    private TestQuestionService testQuestionService;
 
     @Override
     public QuestionBankVO queryById(Long questionId) {
@@ -47,8 +55,36 @@ public class QuestionBankServiceImpl extends ServiceImpl<QuestionBankDao, Questi
 
     @Override
     public List<QuestionBank> getQuestionsByTestId(Long testId) {
+        List<Long> questionIds = testQuestionService.lambdaQuery()
+                .eq(TestQuestion::getTestId, testId)
+                .select(TestQuestion::getQuestionId).list().stream()
+                .map(TestQuestion::getQuestionId).toList();
+        if (questionIds.isEmpty()) {
+            return new ArrayList<>();
+        }
         // 通过 MyBatis-Plus 的 Mapper 查询试卷的题目
-        return baseMapper.selectList(new QueryWrapper<QuestionBank>().eq("test_id", testId));
+        return this.listByIds(questionIds);
+    }
+
+    @Override
+    public List<String> getQuestionTypesByTestId(Long testId) {
+        List<Long> questionIds = testQuestionService.lambdaQuery()
+                .eq(TestQuestion::getTestId, testId)
+                .select(TestQuestion::getQuestionId).list().stream()
+                .map(TestQuestion::getQuestionId).toList();
+        if(questionIds.isEmpty()){
+            return new ArrayList<>();
+        }
+        // 通过 MyBatis-Plus 的 Mapper 查询试卷的题目类型
+        return this.lambdaQuery()
+                .select(QuestionBank::getType)
+                .in(QuestionBank::getQuestionId, questionIds)
+                .list().stream()
+                .map(QuestionBank::getType)
+                .map(QuestionBank.Type::valueOf)
+                .filter(Objects::nonNull)
+                .map(QuestionBank.Type::getDesc)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 }
 

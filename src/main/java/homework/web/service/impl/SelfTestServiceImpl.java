@@ -4,8 +4,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import homework.web.dao.SelfTestDao;
 import homework.web.entity.dto.SelfTestCreateParam;
-import homework.web.entity.dto.TestQuestionQuery;
+import homework.web.entity.dto.SelfTestWithRecordQuery;
 import homework.web.entity.po.*;
+import homework.web.entity.vo.SelfTestWithRecordVO;
 import homework.web.service.*;
 import homework.web.entity.dto.SelfTestQuery;
 import homework.web.entity.po.SelfTest;
@@ -18,8 +19,6 @@ import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * 自测试卷(SelfTest)表服务实现类
@@ -39,7 +38,10 @@ public class SelfTestServiceImpl extends ServiceImpl<SelfTestDao, SelfTest> impl
     private CourseEnrollmentService courseEnrollmentService;
     @Resource
     private TestRecordService testRecordService;
-
+    @Resource
+    private CourseService courseService;
+    @Resource
+    private UserService userService;
     @Override
     public SelfTestVO queryById(Long testId) {
         SelfTestVO vo = selfTestDao.queryById(testId);
@@ -49,7 +51,7 @@ public class SelfTestServiceImpl extends ServiceImpl<SelfTestDao, SelfTest> impl
 
     @Override
     public List<SelfTestVO> queryAll(int current, int pageSize, SelfTestQuery param) {
-        if (current > 0 && pageSize > 0) {
+        if (current >= 0 && pageSize >= 0) {
             PageHelper.startPage(current, pageSize);
         }
         List<SelfTestVO> vos = selfTestDao.queryAll(param);
@@ -62,18 +64,13 @@ public class SelfTestServiceImpl extends ServiceImpl<SelfTestDao, SelfTest> impl
             return;
         }
         if (vo.getTestId() != null) {
-            List<Long> questionIds = testQuestionService.queryQuestionIdsByTestId(vo.getTestId());
-            if (questionIds != null && !questionIds.isEmpty()) {
-                List<QuestionBank> questionBanks = questionBankService.listByIds(questionIds);
-                vo.setQuestions(questionBanks);
-                //设置题目类型
-                vo.setQuestionTypes(questionBanks.stream().map(questionBank -> {
-                    return Optional.ofNullable(QuestionBank.Type.valueOf(questionBank.getType()))
-                            .map(QuestionBank.Type::getDesc).orElse(null);
-                }).filter(Objects::nonNull).distinct().toList());
-                //设置题目数量
-                vo.setQuestionCount(questionIds.size());
-            }
+            vo.setQuestionTypes(questionBankService.getQuestionTypesByTestId(vo.getTestId()));
+
+            vo.setQuestionCount(testQuestionService.lambdaQuery().eq(TestQuestion::getTestId, vo.getTestId()).count());
+            vo.setQuestions(questionBankService.getQuestionsByTestId(vo.getTestId()));
+        }
+        if (vo.getCourseId() != null) {
+            vo.setCourse(courseService.queryById(vo.getCourseId()));
         }
     }
 
@@ -115,5 +112,36 @@ public class SelfTestServiceImpl extends ServiceImpl<SelfTestDao, SelfTest> impl
         return testRecordService.create(courseId, id);
 
     }
+
+    @Override
+    public List<SelfTestWithRecordVO> queryAllWithRecord(Integer current, Integer pageSize, SelfTestWithRecordQuery param) {
+        if (current >= 0 && pageSize >= 0) {
+            PageHelper.startPage(current, pageSize);
+        }
+        List<SelfTestWithRecordVO> list = selfTestDao.queryAllWithRecord(param);
+        list.forEach(this::fillWithRecordVO);
+        return list;
+    }
+
+    @Override
+    public int countWithRecord(SelfTestWithRecordQuery param) {
+        return selfTestDao.countWithRecord(param);
+    }
+
+    private void fillWithRecordVO(SelfTestWithRecordVO vo) {
+        if (vo == null) {
+            return;
+        }
+        this.fillVO(vo);
+        if(vo.getRecordId() != null){
+            vo.setRecord(testRecordService.getById(vo.getRecordId()));
+        }
+        if(vo.getStudentId()!=null){
+            vo.setStudent(userService.queryById(vo.getStudentId()));
+            userService.desensitize(vo.getStudent());
+        }
+
+    }
+
 }
 
