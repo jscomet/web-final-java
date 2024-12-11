@@ -125,7 +125,9 @@ public class DiscussionController {
 
         // 创建一个讨论区应该随便添加一个replay
         boolean flag = discussionService.save(param);
-        asyncService.asyncAIReply(param.getDiscussionId(), param.getContent());
+//        拿到讨论区的最大的id
+        Long discussionId = discussionService.getOne(new LambdaQueryWrapper<Discussion>().orderByDesc(Discussion::getDiscussionId).last("limit 1")).getDiscussionId();
+        asyncService.asyncAIReply(discussionId, param.getContent());
         return flag ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
@@ -158,9 +160,9 @@ public class DiscussionController {
         }
 
 //        氛围机器人回复
+        Long parentId = discussionReplyService.getOne(new LambdaQueryWrapper<DiscussionReply>().orderByDesc(DiscussionReply::getDiscussionId).last("limit 1")).getParentId();
         // 创建一个讨论区应该随便添加一个replay
-        asyncService.asyncAIReplyDiscussion(param.getDiscussionId(), param.getParentId(),param.getContent());
-
+        asyncService.asyncAIReplyDiscussion(param.getDiscussionId(), parentId, param.getContent());
 
         return  CommonResult.success(discussionReplyService.save(param)) ;
     }
