@@ -73,7 +73,6 @@ public class AssignmentController {
     public CommonResult<ListResult<AssignmentDetailVO>> getMyAssignmentDetails(@RequestParam(defaultValue = "1") Integer current,
                                                                                @RequestParam(defaultValue = "10") Integer pageSize,
                                                                                @Validated(QueryGroup.class) AssignmentDetailQuery param) {
-
         param.setStudentId(AuthUtils.getCurrentUserId());
         List<AssignmentDetailVO> list = assignmentService.queryAllDetail(current, pageSize, param);
         int total = assignmentService.countDetail(param);

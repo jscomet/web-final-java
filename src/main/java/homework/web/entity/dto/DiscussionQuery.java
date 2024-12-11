@@ -1,6 +1,10 @@
 package homework.web.entity.dto;
 
+import homework.web.config.valid.QueryGroup;
+import homework.web.config.valid.SorterValidated;
 import homework.web.entity.po.Discussion;
+import homework.web.util.beans.Sorter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -13,4 +17,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class DiscussionQuery extends Discussion {
+
+    @SorterValidated(groups = {QueryGroup.class})
+    @Schema(description = "可选字段 回复时间:createTime 、回复人数 replayCount 点赞数 likeCount")
+    private Sorter sorter;
 }

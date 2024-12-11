@@ -4,6 +4,7 @@ import homework.web.annotation.PermissionAuthorize;
 import homework.web.entity.dto.TestRecordCommitParam;
 import homework.web.entity.dto.TestRecordQuery;
 import homework.web.entity.po.TestRecord;
+import homework.web.entity.vo.TestRecordResultVO;
 import homework.web.entity.vo.TestRecordVO;
 import homework.web.service.TestRecordService;
 import homework.web.service.impl.SelfTestServiceImpl;
@@ -91,7 +92,8 @@ public class TestRecordController {
     //TODO 答案的格式需要确定
     @Operation(summary = "学生提交考试答案")
     @PostMapping("/submit")
-    public CommonResult<Boolean> submitTestRecord(@RequestBody TestRecordCommitParam answer) {
-        return testRecordService.commit(answer) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+    public CommonResult<TestRecordResultVO> submitTestRecord(@RequestBody TestRecordCommitParam answer) {
+        TestRecordResultVO vo = testRecordService.commit(AuthUtils.getCurrentUserId(),answer);
+        return vo!=null? CommonResult.success(vo) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 }

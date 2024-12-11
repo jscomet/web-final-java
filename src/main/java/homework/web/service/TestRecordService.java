@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import homework.web.entity.dto.TestRecordCommitParam;
 import homework.web.entity.po.TestRecord;
 import homework.web.entity.dto.TestRecordQuery;
+import homework.web.entity.vo.TestRecordResultVO;
 import homework.web.entity.vo.TestRecordVO;
 
 import java.util.List;
@@ -54,12 +55,19 @@ public interface TestRecordService extends IService<TestRecord> {
     /**
      * 学生提交试卷答案
      *
+     * @param studentId 学生id
      * @param answer 提交答案
-     * @return 是否提交成功
+     * @return 提交结构
      */
-    boolean commit(TestRecordCommitParam answer);
+    TestRecordResultVO commit(Long studentId,TestRecordCommitParam answer);
 
-
+    /**
+     * 根据考试id和学生id获取考试记录
+     *
+     * @param testId    考试id
+     * @param studentId 学生id
+     * @return 考试记录
+     */
     TestRecord getTestRecordByTestIdAndStudentId(Long testId, Long studentId);
 }
 

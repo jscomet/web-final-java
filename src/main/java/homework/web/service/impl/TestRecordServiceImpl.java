@@ -8,21 +8,19 @@ import homework.web.dao.TestRecordDao;
 import homework.web.entity.dto.TestRecordCommitParam;
 import homework.web.entity.po.QuestionBank;
 import homework.web.entity.po.TestRecord;
-import homework.web.entity.vo.CourseVO;
-import homework.web.entity.vo.SelfTestVO;
-import homework.web.entity.vo.UserVO;
+import homework.web.entity.vo.*;
 import homework.web.service.*;
 import homework.web.entity.dto.TestRecordQuery;
-import homework.web.entity.vo.TestRecordVO;
 import homework.web.util.AIHelperUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.Context;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -43,6 +41,7 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
     private SelfTestService selfTestService;
     @Resource
     private CourseService courseService;
+
 
     @Override
     public TestRecordVO queryById(Long recordId) {
@@ -100,51 +99,41 @@ public class TestRecordServiceImpl extends ServiceImpl<TestRecordDao, TestRecord
     }
 
     @Override
-    public boolean commit(TestRecordCommitParam trCommit) {
+    public TestRecordResultVO commit(Long studentId,TestRecordCommitParam trCommit) {
         // 获得试卷id对应的试卷
         SelfTestVO selfTestVO = selfTestService.queryById(trCommit.getTestId());
         if (selfTestVO == null) {
-            return false;
+            return null;
         }
-        // 获得试卷id对应的试卷中的题目数目
-        int questionCount = selfTestVO.getQuestions().size();
-        float win = 0;
-        // 逐个比较selfTestVO中question和trCommit中的questionId相同答案是否相同
-        for (TestRecordCommitParam.Answer answer : trCommit.getAnswers()) {
-            // Fetch the question from the database using questionId
-            QuestionBank question = questionBankService.getById(answer.getQuestionId());
-            if (question.getType() == 1) {
-//                判断多选复杂一点点
-                String[] correctAnswers = question.getCorrectAnswer().split(",");
-                String[] userAnswers = answer.getAnswer().split(",");
-                if (correctAnswers.length != userAnswers.length) {
-                    continue;
-                }
-            }else if (question.getType() == 4) {
-//                问答题的判断
-                String s = AIHelperUtils.aiAnalyse("正确答案是" + question.getCorrectAnswer() + "，学生答案是" + answer.getAnswer() + "。请你从0分到1分之间给出一个评分。用数字作答");
-                win += Float.parseFloat(s);
-            }
-            else if (!question.getCorrectAnswer().equals(answer.getAnswer())) {
-//             单选、填空、判断是这里
-                continue;
-            }
-            win++;
-        }
-        // 构建数据写入
-        TestRecord testRecord = new TestRecord();
-        testRecord.setTestId(trCommit.getTestId());
-        float i = (float) (win * 100.0 / questionCount);
-        testRecord.setScore(i);
+
+        //构建测试结果
+        TestRecordResultVO resultVO =selfTestService.scoreSelfTest(trCommit.getTestId(), trCommit.getAnswers());
+
+        //查询测试记录
+        TestRecord old=this.lambdaQuery().eq(TestRecord::getStudentId,studentId)
+                .eq(TestRecord::getTestId,trCommit.getTestId()).one();
+
+
+        //插入测试数据
+        TestRecord testRecord=new TestRecord();
+        testRecord.setAnswers(trCommit.getAnswers());
+        testRecord.setMaxScore(resultVO.getMaxScore());
+        testRecord.setCorrectAnswers(resultVO.getCorrectAnswers());
+        testRecord.setQuestionScore(resultVO.getQuestionScore());
+        testRecord.setScore(resultVO.getTotalScore());
         testRecord.setStatus(TestRecord.Status.FINISHED);
-        // 把trCommit中的答案转变成json写入
-        testRecord.setAnswers(JSON.toJSONString(trCommit.getAnswers()));
-        testRecord.setCompleteTime(LocalDateTime.now());
-        testRecord.setCourseId(trCommit.getCourseId());
-        // 从上下文中获取当前用户id
-        UserVO currentUser = CurrentUserContext.getCurrentUser();
-        testRecord.setStudentId(currentUser.getUserId());
-        return this.save(testRecord);
+        testRecord.setTestId(trCommit.getTestId());
+        testRecord.setStudentId(studentId);
+        testRecord.setCourseId(selfTestVO.getCourseId());
+        if(old !=null){
+            testRecord.setRecordId(old.getRecordId());
+            testRecord.setScore(old.getScore()>testRecord.getScore()?old.getScore():testRecord.getScore());
+        }
+        //插入或更新
+        super.saveOrUpdate(testRecord);
+
+        //返回测评结构
+        return resultVO;
     }
 
     @Override

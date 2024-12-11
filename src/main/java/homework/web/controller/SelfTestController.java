@@ -159,7 +159,8 @@ public class SelfTestController {
         // 将 answers 字段解析为 Map
         Map<String, String> answersMap;
         try {
-            answersMap = objectMapper.readValue(testRecord.getAnswers(), Map.class);
+//            answersMap = objectMapper.readValue(testRecord.getAnswers(), Map.class);
+            answersMap = new HashMap<>();
         } catch (Exception e) {
             return CommonResult.error(HttpStatus.INTERNAL_SERVER_ERROR, "答案解析失败");
         }

@@ -4,10 +4,13 @@ package homework.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import homework.web.entity.dto.SelfTestCreateParam;
 import homework.web.entity.dto.SelfTestWithRecordQuery;
+import homework.web.entity.dto.TestRecordCommitParam;
 import homework.web.entity.po.SelfTest;
 import homework.web.entity.dto.SelfTestQuery;
+import homework.web.entity.po.TestRecord;
 import homework.web.entity.vo.SelfTestVO;
 import homework.web.entity.vo.SelfTestWithRecordVO;
+import homework.web.entity.vo.TestRecordResultVO;
 
 import java.util.List;
 
@@ -84,5 +87,13 @@ public interface SelfTestService extends IService<SelfTest> {
      * @return 数量
      */
     int countWithRecord(SelfTestWithRecordQuery param);
+
+    /**
+     * 自动品评测试卷
+     * @param testId 测试卷id
+     * @param answers 学生提交的答案
+     * @return 测试结果
+     */
+    TestRecordResultVO scoreSelfTest(Long testId,  List<TestRecordCommitParam.Answer> answers);
 }
 

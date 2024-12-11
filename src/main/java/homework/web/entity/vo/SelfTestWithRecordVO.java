@@ -25,4 +25,7 @@ public class SelfTestWithRecordVO extends SelfTestVO{
     @Schema(description = "测试记录")
     private TestRecord record;
 
+    @Schema(description = "测试结果")
+    private TestRecordResultVO result;
+
 }

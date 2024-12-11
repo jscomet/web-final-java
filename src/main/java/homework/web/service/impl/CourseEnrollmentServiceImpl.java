@@ -132,6 +132,19 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
     }
 
     @Override
+    public boolean checkEnrolled(Long studentId, Long courseId) {
+        if (studentId == null || courseId == null) {
+            return false;
+        }
+
+        return super.lambdaQuery()
+                .eq(CourseEnrollment::getStudentId,studentId)
+                .eq(CourseEnrollment::getCourseId,courseId)
+                .eq(CourseEnrollment::getStatus,CourseEnrollment.Status.SELECTED)
+                .exists();
+    }
+
+    @Override
     public List<Long> getStudentIdsByCourseId(Long courseId) {
         return this.lambdaQuery().eq(CourseEnrollment::getCourseId, courseId)
                 .list()

@@ -3,6 +3,7 @@ package homework.web.controller;
 import homework.web.annotation.PermissionAuthorize;
 import homework.web.constant.enums.RoleType;
 import homework.web.entity.dto.CourseEnrollmentQuery;
+import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.vo.CourseEnrollmentVO;
 import homework.web.service.CourseEnrollmentService;
 import homework.web.util.AuthUtils;
@@ -58,6 +59,12 @@ public class CourseEnrollmentController {
         return CommonResult.success(new ListResult<>(list, total));
     }
 
+    @Operation(summary = "是否注册相应课程")
+    @GetMapping("/check-enrolled/{courseId}")
+    public CommonResult<Boolean> checkCourseEnrolled(@PathVariable Long courseId){
+        Long studentId=AuthUtils.getCurrentUserId();
+        return CommonResult.success(courseEnrollmentService.checkEnrolled(studentId,courseId));
+    }
 
     /**
      * 学生添加课程注册
@@ -76,7 +83,7 @@ public class CourseEnrollmentController {
     /**
      * 学生取消课程注册
      *
-     * @param id 课程注册ID
+     * @param courseId 课程注册ID
      * @return 是否添加成功
      */
     @Operation(summary = "学生取消课程注册")

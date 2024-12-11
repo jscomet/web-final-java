@@ -74,5 +74,14 @@ public interface CourseEnrollmentService extends IService<CourseEnrollment> {
      * @return 是否退课成功
      */
     boolean quit(Long studentId, Long courseId);
+
+    /**
+     * 查看学生是否注册课程
+     *
+     * @param studentId 学生id
+     * @param courseId 课程id
+     * @return 是否成功
+     */
+    boolean checkEnrolled(Long studentId, Long courseId);
 }
 

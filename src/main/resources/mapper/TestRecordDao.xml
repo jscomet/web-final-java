@@ -3,17 +3,19 @@
 <mapper namespace="homework.web.dao.TestRecordDao">
 
 
-    <resultMap id="TestRecordMap" type="homework.web.entity.po.TestRecord">
-        <result property="recordId" column="record_id" jdbcType="INTEGER"/>
-        <result property="testId" column="test_id" jdbcType="INTEGER"/>
-        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
-        <result property="status" column="status" jdbcType="INTEGER"/>
-        <result property="answers" column="answers" jdbcType="VARCHAR"/>
-        <result property="score" column="score" jdbcType="NUMERIC"/>
-        <result property="completeTime" column="complete_time" jdbcType="TIMESTAMP"/>
+    <resultMap id="TestRecordMap" type="homework.web.entity.po.TestRecord" autoMapping="true">
+        <result property="answers" column="answers"
+                typeHandler="homework.web.entity.handler.AnswersListTypeHandler"
+        />
+        <result property="questionScore" column="question_score"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result property="correctAnswers" column="correct_answers"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+
     </resultMap>
-    
-    <resultMap id="TestRecordVOMap" type="homework.web.entity.vo.TestRecordVO" extends="TestRecordMap" autoMapping="true"/>
+
+    <resultMap id="TestRecordVOMap" type="homework.web.entity.vo.TestRecordVO" extends="TestRecordMap"
+               autoMapping="true"/>
 
     <!--查询单个-->
     <select id="queryById" resultMap="TestRecordVOMap">
@@ -22,8 +24,8 @@
         where `record_id` = #{recordId}
     </select>
 
-     <!--筛选条件-->
-   <sql id="queryCondition">
+    <!--筛选条件-->
+    <sql id="queryCondition">
         <where>
             <if test="recordId != null">
                 and `record_id` = #{recordId}
@@ -49,6 +51,15 @@
             <if test="courseId != null">
                 and `course_id` = #{courseId}
             </if>
+            <if test="maxScore != null">
+                and `max_score` = #{maxScore}
+            </if>
+            <if test="questionScore != null and questionScore != ''">
+                and `question_score` = #{questionScore}
+            </if>
+            <if test="correctAnswers != null and correctAnswers != ''">
+                and `correct_answers` = #{correctAnswers}
+            </if>
         </where>
     </sql>
 
@@ -65,30 +76,37 @@
         from `test_record`
         <include refid="queryCondition"/>
     </select>
- 
+
 
     <!-- 批量插入 -->
     <insert id="insertBatch" keyProperty="recordId" useGeneratedKeys="true">
-        insert into test_record(test_id,student_id,status,answers,score,complete_time)
+        insert into
+        test_record(test_id,student_id,status,answers,score,complete_time,course_id,max_score,question_score,correct_answers)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.testId},#{entity.studentId},#{entity.status},#{entity.answers},#{entity.score},#{entity.completeTime})
+            (#{entity.testId},#{entity.studentId},#{entity.status},#{entity.answers},#{entity.score},#{entity.completeTime},#{entity.courseId},#{entity.maxScore},#{entity.questionScore},#{entity.correctAnswers})
         </foreach>
     </insert>
     <!-- 批量插入或按主键更新 -->
     <insert id="insertOrUpdateBatch" keyProperty="recordId" useGeneratedKeys="true">
-        insert into test_record(test_id,student_id,status,answers,score,complete_time)
+        insert into
+        test_record(test_id,student_id,status,answers,score,complete_time,course_id,max_score,question_score,correct_answers)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.testId},#{entity.studentId},#{entity.status},#{entity.answers},#{entity.score},#{entity.completeTime})
+            (#{entity.testId},#{entity.studentId},#{entity.status},#{entity.answers},#{entity.score},#{entity.completeTime},#{entity.courseId},#{entity.maxScore},#{entity.questionScore},#{entity.correctAnswers})
         </foreach>
         on duplicate key update
-           test_id = values(test_id) ,
-           student_id = values(student_id) ,
-           status = values(status) ,
-           answers = values(answers) ,
-           score = values(score) ,
-           complete_time = values(complete_time)     
+        test_id = values(test_id) ,
+        student_id = values(student_id) ,
+        status = values(status) ,
+        answers = values(answers) ,
+        result = values(result) ,
+        score = values(score) ,
+        complete_time = values(complete_time) ,
+        course_id = values(course_id) ,
+        max_score = values(max_score) ,
+        question_score = values(question_score) ,
+        correct_answers = values(correct_answers)
     </insert>
 
 </mapper>
