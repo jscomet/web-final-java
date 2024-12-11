@@ -17,12 +17,14 @@ import homework.web.exception.HttpErrorException;
 import homework.web.service.CourseService;
 import homework.web.service.DiscussionReplyService;
 import homework.web.service.DiscussionService;
+import homework.web.util.AIHelperUtils;
 import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import jakarta.annotation.Resource;
@@ -47,6 +49,8 @@ public class DiscussionController {
     private CourseService courseService;
     @Resource
     private DiscussionReplyService discussionReplyService;
+    @Resource
+    private homework.web.service.AsyncService asyncService;
 
     @Operation(summary = "获取指定讨论信息")
     @GetMapping("/info/{id}")
@@ -118,8 +122,11 @@ public class DiscussionController {
         param.setUserId(AuthUtils.getCurrentUserId());
         param.setTitle(form.getTitle());
         param.setContent(form.getContent());
-        // 保存讨论区
-        return discussionService.save(param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+
+        // 创建一个讨论区应该随便添加一个replay
+        boolean flag = discussionService.save(param);
+        asyncService.asyncAIReply(param.getDiscussionId(), param.getContent());
+        return flag ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
     @Operation(summary = "添加回复")
@@ -149,6 +156,12 @@ public class DiscussionController {
         }else{
             throw new HttpErrorException(HttpStatus.BAD_REQUEST,"讨论ID和回复Id不能都为空");
         }
+
+//        氛围机器人回复
+        // 创建一个讨论区应该随便添加一个replay
+        asyncService.asyncAIReplyDiscussion(param.getDiscussionId(), param.getParentId(),param.getContent());
+
+
         return  CommonResult.success(discussionReplyService.save(param)) ;
     }
 
