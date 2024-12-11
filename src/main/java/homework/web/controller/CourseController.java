@@ -107,6 +107,8 @@ public class CourseController {
         return courseService.updateById(param) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
+
+
     @Operation(summary = "删除指定课程信息")
     @DeleteMapping("/delete/{id}")
     public CommonResult<Boolean> deleteCourse(@PathVariable Long id) {

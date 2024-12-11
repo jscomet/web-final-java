@@ -1,6 +1,5 @@
 package homework.web.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import homework.web.dao.CourseEnrollmentDao;
@@ -10,7 +9,6 @@ import homework.web.entity.vo.CourseVO;
 import homework.web.entity.vo.UserVO;
 import homework.web.service.CourseEnrollmentService;
 import homework.web.entity.dto.CourseEnrollmentQuery;
-import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.vo.CourseEnrollmentVO;
 import homework.web.service.CourseService;
 import homework.web.service.UserService;
@@ -80,21 +78,23 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
 
     @Override
     @Transactional
-    public boolean addByCourseId(Long courseId) {
+    public boolean addByCourseId(Long studentId, Long courseId) {
         // 检查课程是否存在
         Course course = courseService.getById(courseId);
         AssertUtils.notNull(course, HttpStatus.NOT_FOUND, "课程不存在");
 
         // 检查学生是否已经注册
-        Long studentId = AuthUtils.getCurrentUserId();
         CourseEnrollment enrollment = this.lambdaQuery().eq(CourseEnrollment::getCourseId, courseId)
                 .eq(CourseEnrollment::getStudentId, studentId).one();
-        AssertUtils.isNull(enrollment, HttpStatus.BAD_REQUEST, "已经注册过该课程");
+        AssertUtils.isTrue(enrollment == null || !CourseEnrollment.Status.SELECTED.equals(enrollment.getStatus()),
+                HttpStatus.BAD_REQUEST, "已经注册过该课程");
         // 添加注册信息
         CourseEnrollment insertParam = new CourseEnrollment();
+        insertParam.setEnrollmentId(enrollment == null ? null : enrollment.getEnrollmentId());
+        insertParam.setStatus(CourseEnrollment.Status.SELECTED);
         insertParam.setCourseId(courseId);
         insertParam.setStudentId(studentId);
-        this.save(insertParam);
+        super.saveOrUpdate(insertParam);
 
         // 更新课程人数
         courseService.lambdaUpdate()
@@ -106,9 +106,11 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
 
     @Override
     @Transactional
-    public boolean quit(Long studentId, Long id) {
+    public boolean quit(Long studentId, Long courseId) {
         // 查询课程注册信息
-        CourseEnrollment courseEnrollment = this.queryById(id);
+        CourseEnrollment courseEnrollment = this.lambdaQuery()
+                .eq(CourseEnrollment::getCourseId, courseId)
+                .eq(CourseEnrollment::getStudentId, studentId).one();
         AssertUtils.notNull(courseEnrollment, HttpStatus.NOT_FOUND, "课程注册信息不存在");
         AssertUtils.isTrue(Objects.equals(AuthUtils.getCurrentUserId(), courseEnrollment.getStudentId()), HttpStatus.FORBIDDEN, "无权限操作");
 
@@ -116,15 +118,17 @@ public class CourseEnrollmentServiceImpl extends ServiceImpl<CourseEnrollmentDao
         // 课程不存在
         AssertUtils.notNull(course, HttpStatus.NOT_FOUND, "课程不存在");
         // 课程状态异常
-        AssertUtils.isTrue(course.getStatus() == Course.Status.ARCHIVED, HttpStatus.BAD_REQUEST, "课程已结束");
+        AssertUtils.isTrue(course.getStatus() != Course.Status.ARCHIVED, HttpStatus.BAD_REQUEST, "课程已归档");
 
         // 更新课程人数
         courseService.lambdaUpdate()
                 .eq(Course::getCourseId, courseEnrollment.getCourseId())
                 .set(Course::getStudentCount, course.getStudentCount() - 1)
                 .update();
-        // 删除课程注册信息
-        return super.removeById(id);
+        // 更新课程注册学习
+        return super.lambdaUpdate().eq(CourseEnrollment::getEnrollmentId, courseEnrollment.getEnrollmentId())
+                .set(CourseEnrollment::getStatus, CourseEnrollment.Status.CANCEL)
+                .update();
     }
 
     @Override

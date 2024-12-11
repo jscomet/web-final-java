@@ -1,28 +1,20 @@
 package homework.web.controller;
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import homework.web.annotation.PermissionAuthorize;
+import homework.web.constant.enums.RoleType;
 import homework.web.entity.dto.CourseEnrollmentQuery;
-import homework.web.entity.po.Course;
-import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.vo.CourseEnrollmentVO;
-import homework.web.entity.vo.CourseVO;
 import homework.web.service.CourseEnrollmentService;
-import homework.web.service.CourseService;
-import homework.web.util.AssertUtils;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.http.HttpStatus;
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 课程注册(CourseEnrollment)表控制层
@@ -77,7 +69,8 @@ public class CourseEnrollmentController {
     @PostMapping("/add/{courseId}")
     @PermissionAuthorize
     public CommonResult<Boolean> addCourseEnrollment(@PathVariable Long courseId) {
-        return courseEnrollmentService.addByCourseId(courseId) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
+        Long studentId = AuthUtils.getCurrentUserId();
+        return courseEnrollmentService.addByCourseId(studentId, courseId) ? CommonResult.success(true) : CommonResult.error(HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -87,15 +80,17 @@ public class CourseEnrollmentController {
      * @return 是否添加成功
      */
     @Operation(summary = "学生取消课程注册")
-    @PutMapping("/quit/{id}")
+    @PutMapping("/quit/{courseId}")
     @PermissionAuthorize
-    public CommonResult<Boolean> quitCourseEnrollment(@PathVariable Long id) {
+    public CommonResult<Boolean> quitCourseEnrollment(@PathVariable Long courseId) {
         Long studentId = AuthUtils.getCurrentUserId();
-        return courseEnrollmentService.quit(studentId, id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
+        return courseEnrollmentService.quit(studentId, courseId) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
+
 
     @Operation(summary = "删除指定课程注册")
     @DeleteMapping("/delete/{id}")
+    @PermissionAuthorize(RoleType.TEACHER)
     public CommonResult<Boolean> deleteCourseEnrollment(@PathVariable Long id) {
         return courseEnrollmentService.removeById(id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
     }

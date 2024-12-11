@@ -26,9 +26,9 @@ public interface CourseEnrollmentService extends IService<CourseEnrollment> {
     /**
      * 查询多条数据
      *
-     * @param current 查询页面
+     * @param current  查询页面
      * @param pageSize 查询条数
-     * @param param 查询参数
+     * @param param    查询参数
      * @return 对象列表
      */
     List<CourseEnrollmentVO> queryAll(int current, int pageSize, CourseEnrollmentQuery param);
@@ -40,14 +40,19 @@ public interface CourseEnrollmentService extends IService<CourseEnrollment> {
      * @return 数量
      */
     int count(CourseEnrollmentQuery param);
+
     /**
      * 学生添加课程注册
+     *
+     * @param studentId 学生ID
      * @param courseId 课程ID
      * @return 是否添加成功
      */
-    boolean addByCourseId(Long courseId);
+    boolean addByCourseId(Long studentId, Long courseId);
+
     /**
      * 根据课程id获取学生id列表
+     *
      * @param courseId 课程id
      * @return 学生id列表
      */
@@ -55,16 +60,19 @@ public interface CourseEnrollmentService extends IService<CourseEnrollment> {
 
     /**
      * 根据学生id获取课程id
+     *
      * @param studentId 学生id
      * @return 课程id列表
      */
     List<Long> getCourseIdsByStudentId(Long studentId);
+
     /**
      * 学生退课
+     *
      * @param studentId 学生id
-     * @param id 课程注册id
+     * @param courseId        课程注册id
      * @return 是否退课成功
      */
-    boolean quit(Long studentId, Long id);
+    boolean quit(Long studentId, Long courseId);
 }
 
