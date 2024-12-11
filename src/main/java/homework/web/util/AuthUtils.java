@@ -3,6 +3,7 @@ package homework.web.util;
 import homework.web.constant.enums.RoleType;
 import homework.web.context.CurrentUserContext;
 import homework.web.entity.po.Role;
+import homework.web.entity.po.User;
 import homework.web.entity.vo.UserVO;
 
 public class AuthUtils {
@@ -59,4 +60,7 @@ public class AuthUtils {
         return false;
     }
 
+    public static boolean isDisabled() {
+        return getUserDetails() != null && User.Status.DISABLED.equals(getUserDetails().getStatus());
+    }
 }

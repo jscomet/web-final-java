@@ -29,11 +29,18 @@ public class PermissionAuthorizeInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        //判断当前用户是否禁用
+        if (AuthUtils.isDisabled()) {
+
+            throw new HttpErrorException(HttpStatus.FORBIDDEN, "用户已被禁用");
+        }
+
         // 判断是否开启权限校验
         if (!Boolean.TRUE.equals(appProperty.getSecurity().isEnabled())) {
             return true;
         }
 
+        //根据注解进行校验
         PermissionAuthorize permissionAuthorize = method.getMethod().getAnnotation(PermissionAuthorize.class);
         if (permissionAuthorize == null) {
             return true;
