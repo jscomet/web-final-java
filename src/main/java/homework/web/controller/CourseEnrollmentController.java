@@ -63,7 +63,7 @@ public class CourseEnrollmentController {
     @GetMapping("/check-enrolled/{courseId}")
     public CommonResult<Boolean> checkCourseEnrolled(@PathVariable Long courseId){
         Long studentId=AuthUtils.getCurrentUserId();
-        return CommonResult.success(courseEnrollmentService.checkEnrolled(studentId,courseId));
+        return CommonResult.success(courseEnrollmentService.checkEnrolled(studentId,courseId)||AuthUtils.hasAnyRole(RoleType.TEACHER,RoleType.SUPER_ADMIN));
     }
 
     /**
