@@ -12,6 +12,7 @@ import homework.web.entity.po.CourseEnrollment;
 import homework.web.entity.po.User;
 import homework.web.entity.vo.*;
 import homework.web.service.*;
+import homework.web.util.AIHelperUtils;
 import homework.web.util.AuthUtils;
 import homework.web.util.beans.CommonResult;
 import homework.web.util.beans.ListResult;
@@ -68,12 +69,13 @@ public class CourseController {
         int total = courseService.countWithEnroll(param);
         return CommonResult.success(new ListResult<>(list, total));
     }
+
     @Operation(summary = "获取我的课程信息列表，包含注册信息")
     @GetMapping("/list-self-enroll")
     @PermissionAuthorize
     public CommonResult<ListResult<CourseWithEnrollVO>> getMyCoursesWithEnroll(@RequestParam(defaultValue = "1") Integer current,
-                                                                             @RequestParam(defaultValue = "10") Integer pageSize,
-                                                                             @Validated(QueryGroup.class) CourseWithEnrollQuery param) {
+                                                                               @RequestParam(defaultValue = "10") Integer pageSize,
+                                                                               @Validated(QueryGroup.class) CourseWithEnrollQuery param) {
         param.setStudentId(AuthUtils.getCurrentUserId());
         List<CourseWithEnrollVO> list = courseService.queryAllWithEnroll(current, pageSize, param);
         int total = courseService.countWithEnroll(param);
@@ -108,10 +110,28 @@ public class CourseController {
     }
 
 
-
     @Operation(summary = "删除指定课程信息")
     @DeleteMapping("/delete/{id}")
     public CommonResult<Boolean> deleteCourse(@PathVariable Long id) {
         return courseService.removeById(id) ? CommonResult.success(true) : CommonResult.error(HttpStatus.NOT_FOUND);
+    }
+
+
+
+    @Operation(summary = "ai助手交流")
+    @PostMapping("/ai/query")
+    public CommonResult<String> ai(@RequestParam("userInput") String userInput) {
+        if (userInput == null || userInput.trim().isEmpty()) {
+            return CommonResult.error(HttpStatus.BAD_REQUEST, "问题不能为空");
+        }
+        try {
+            String result = AIHelperUtils.address(userInput);
+            if (result == null || result.isEmpty()) {
+                return CommonResult.error(HttpStatus.INTERNAL_SERVER_ERROR, "AI助手暂时无法回答");
+            }
+            return CommonResult.success(result);
+        } catch (Exception e) {
+            return CommonResult.error(HttpStatus.INTERNAL_SERVER_ERROR, "AI服务异常: " + e.getMessage());
+        }
     }
 }

@@ -18,4 +18,11 @@ class AIHelperUtilsTest {
         assertNotNull(result);
         System.out.println(result);
     }
+    @org.junit.jupiter.api.Test
+    void testAddress() {
+        String content = "有学习编程的课程推荐嘛";
+        String result = AIHelperUtils.replay(content);
+        assertNotNull(result);
+        System.out.println(result);
+    }
 }

@@ -97,4 +97,39 @@ public class AIHelperUtils {
         }
     }
 
+    public static String address(String content) {
+        // 构建请求URL
+        String apiUrl = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie-3.5-128k-preview";
+        URI uri = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                .queryParam("access_token", ACCESS_TOKEN)
+                .build()
+                .toUri();
+
+        // 构建请求体
+        String requestBody = "{\"messages\": [{\"role\": \"user\", \"content\": \"" +
+                "你是一个聪明的ai，基于大语言模型的AI智能助手，正在帮助别人解决问题。注意！不要让人知道你的ai。注意！不要让人知道你的ai。注意！不要让人知道你的ai。" +
+                content + "\"}]}";
+
+        // 封装参数
+        HttpRequestUtils.Params params = new HttpRequestUtils.Params();
+        params.setUrl(uri.toString());
+        params.setContentType("application/json");
+        params.setDataEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
+        params.setHeaders(List.of(new BasicHeader("Content-Type", "application/json")));
+
+        try {
+            // 发送请求
+            HttpResponse response = HttpRequestUtils.request(HttpMethod.POST, params);
+            String responseBody = new String(response.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8);
+
+            // 解析 JSON 响应
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(responseBody);
+            return jsonNode.get("result").asText();
+        } catch (IOException e) {
+            System.out.println("AI分析调用异常: " + e.getMessage());
+            return "AI分析失败";
+        }
+    }
+
 }
