@@ -32,6 +32,7 @@ public class AsyncService {
         discussionReply.setDiscussionId(discussionId);
         String replayContent = AIHelperUtils.replay(content);
         discussionReply.setUserId(CHAT_ROBOT_ACCOUNT);
+        discussionReply.setParentId(parentId);
         discussionReply.setContent(replayContent);
         discussionReply.setLikeCount(0);
         discussionReplyService.save(discussionReply);

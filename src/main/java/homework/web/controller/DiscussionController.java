@@ -160,11 +160,13 @@ public class DiscussionController {
         }
 
 //        氛围机器人回复
-        Long parentId = discussionReplyService.getOne(new LambdaQueryWrapper<DiscussionReply>().orderByDesc(DiscussionReply::getDiscussionId).last("limit 1")).getParentId();
+        boolean flag = discussionReplyService.save(param);
+
+        Long parentId = discussionReplyService.getOne(new LambdaQueryWrapper<DiscussionReply>().orderByDesc(DiscussionReply::getDiscussionId).last("limit 1")).getReplyId();
         // 创建一个讨论区应该随便添加一个replay
         asyncService.asyncAIReplyDiscussion(param.getDiscussionId(), parentId, param.getContent());
 
-        return  CommonResult.success(discussionReplyService.save(param)) ;
+        return  CommonResult.success(flag) ;
     }
 
     @Operation(summary = "修改指定讨论区信息")
