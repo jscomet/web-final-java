@@ -20,6 +20,7 @@ import homework.web.util.PasswordUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
@@ -46,6 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     private CourseEnrollmentService courseEnrollmentService;
 
     @Override
+    @Cacheable(value = "user", key = "#userId")
     public UserVO queryById(Long userId) {
         UserVO user = userDao.queryById(userId);
         fillVO(user);
@@ -104,6 +106,15 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
 
         User user = this.lambdaQuery().eq(User::getStudentId, param.getStudentId()).one();
         AssertUtils.notNull(user, HttpStatus.NOT_FOUND, "用户不存在");
+        //判断用户尝试登录次数过的
+        if (user.getLoginAttempts() >= 5) {
+
+            this.lambdaUpdate().eq(User::getUserId, user.getUserId())
+                    .set(User::getStatus, User.Status.DISABLED)
+                    .update();
+
+            throw new HttpErrorException(HttpStatus.BAD_REQUEST, "密码错误次数超过5次，该用户已被锁定");
+        }
 
         //验证密码
         if (PasswordUtils.verifyPassword(param.getPassword(), user.getSalt(), user.getPassword())) {
