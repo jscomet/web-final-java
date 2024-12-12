@@ -78,6 +78,19 @@ public class UserManagementController {
         return CommonResult.success(new ListResult<>(list, total));
     }
 
+    @Operation(summary = "获取学生列表")
+    @GetMapping("/list-teachers")
+    @PermissionAuthorize({RoleType.TEACHER})
+    public CommonResult<ListResult<UserVO>> getTeachers(@RequestParam(defaultValue = "1") Integer current,
+                                                        @RequestParam(defaultValue = "10") Integer pageSize,
+                                                        UserQuery param) {
+        param.setRoleIds(List.of(RoleType.TEACHER.getValue()));
+        List<UserVO> list = userService.queryAll(current, pageSize, param);
+        list.forEach(userService::desensitize);
+        int total = userService.count(param);
+        return CommonResult.success(new ListResult<>(list, total));
+    }
+
     @Operation(summary = "添加用户")
     @PostMapping("/add")
     @PermissionAuthorize(RoleType.TEACHER)
