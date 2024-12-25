@@ -47,7 +47,6 @@ public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserS
     private CourseEnrollmentService courseEnrollmentService;
 
     @Override
-    @Cacheable(value = "user", key = "#userId")
     public UserVO queryById(Long userId) {
         UserVO user = userDao.queryById(userId);
         fillVO(user);
