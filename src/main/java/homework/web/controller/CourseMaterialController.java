@@ -34,7 +34,7 @@ public class CourseMaterialController {
         return vo != null ? CommonResult.success(vo) : CommonResult.error(HttpStatus.NOT_FOUND);
     }
 
-    @Operation(summary = "获取课件资料列表")
+    @Operation(summary = "获取课件资料给列表")
     @GetMapping("/list")
     public CommonResult<ListResult<CourseMaterialVO>> getCourseMaterials(@RequestParam(defaultValue = "1") Integer current,
             @RequestParam(defaultValue = "10") Integer pageSize,
